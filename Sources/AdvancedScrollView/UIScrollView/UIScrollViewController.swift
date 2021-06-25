@@ -112,13 +112,5 @@ final class UIScrollViewController: UIViewController, UIScrollViewDelegate {
 }
 
 
-extension CGSize {
-
-    static var greatestFiniteMagnitude: CGSize {
-        CGSize(width: CGFloat.greatestFiniteMagnitude, height: CGFloat.greatestFiniteMagnitude)
-    }
-}
-
-
 #endif
 
