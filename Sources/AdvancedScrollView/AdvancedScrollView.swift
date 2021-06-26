@@ -53,8 +53,8 @@ public struct AdvancedScrollView<Content: View>: View {
         #if os(macOS)
         NSScrollViewWrapper(magnificationRange: magnificationRange, magnification: $magnification, proxyDelegate: proxyDelegate, content: { content })
         #else
-        //UIScrollViewWrapper(zoomScaleRange: magnificationRange, zoomScale: $magnification, proxyDelegate: proxyDelegate, content: { content })
-        FitScrollViewWrapper(zoomScaleRange: magnificationRange, zoomScale: $magnification, proxyDelegate: proxyDelegate, content: { content })
+        UIScrollViewWrapper(zoomScaleRange: magnificationRange, zoomScale: $magnification, proxyDelegate: proxyDelegate, content: { content })
+        //FitScrollViewWrapper(zoomScaleRange: magnificationRange, zoomScale: $magnification, proxyDelegate: proxyDelegate, content: { content })
         #endif
     }
 

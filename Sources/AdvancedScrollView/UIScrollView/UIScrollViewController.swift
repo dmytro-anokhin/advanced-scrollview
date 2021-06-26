@@ -54,12 +54,12 @@ final class UIScrollViewController: UIViewController, UIScrollViewDelegate {
 
         contentViewController.view.translatesAutoresizingMaskIntoConstraints = false
 
-        NSLayoutConstraint.activate([
-            contentViewController.view.topAnchor.constraint(equalTo: scrollView.topAnchor),
-            contentViewController.view.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
-            contentViewController.view.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
-            contentViewController.view.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor)
-        ])
+        topConstraint = contentViewController.view.topAnchor.constraint(equalTo: scrollView.topAnchor)
+        leadingConstraint = contentViewController.view.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor)
+        bottomConstraint = contentViewController.view.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor)
+        trailingConstraint = contentViewController.view.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor)
+
+        NSLayoutConstraint.activate([ topConstraint, leadingConstraint, bottomConstraint, trailingConstraint])
 
         contentViewController.didMove(toParent: self)
 
@@ -69,6 +69,21 @@ final class UIScrollViewController: UIViewController, UIScrollViewDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         scrollView.delegate = self
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        self.zoomToFit()
+    }
+
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
+
+        coordinator.animate { _ in
+            self.zoomToFit()
+        }
+        completion: { _ in
+        }
     }
 
     func zoom(_ zoomScale: CGFloat) {
@@ -101,10 +116,53 @@ final class UIScrollViewController: UIViewController, UIScrollViewDelegate {
 
     func scrollViewDidZoom(_ scrollView: UIScrollView) {
         zoomScale = scrollView.zoomScale
+        updateConstraintsToMatchZoomScale()
+
         delegate?.scrollViewController(self, zoomScaleDidChange: zoomScale)
     }
 
     // MARK: - Private
+
+    private var topConstraint: NSLayoutConstraint!
+    private var leadingConstraint: NSLayoutConstraint!
+    private var bottomConstraint: NSLayoutConstraint!
+    private var trailingConstraint: NSLayoutConstraint!
+
+    private func updateConstraintsToMatchZoomScale() {
+        let contentViewSize = contentViewController.view.sizeThatFits(.greatestFiniteMagnitude)
+        let scrollViewSize = scrollView.frame.size
+
+        let horizontalOffset = max((scrollViewSize.width - zoomScale * contentViewSize.width) * 0.5, 0.0)
+        let verticalOffset = max((scrollViewSize.height - zoomScale * contentViewSize.height) * 0.5, 0.0)
+
+        topConstraint.constant = verticalOffset
+        leadingConstraint.constant = horizontalOffset
+        bottomConstraint.constant = verticalOffset
+        trailingConstraint.constant = horizontalOffset
+
+        view.layoutIfNeeded()
+    }
+
+    private func zoomToFit() {
+        let contentViewSize = contentViewController.view.sizeThatFits(.greatestFiniteMagnitude)
+        let scrollViewSize = scrollView.frame.size
+
+        var newZoomScale = min(scrollViewSize.width / contentViewSize.width,
+                               scrollViewSize.height / contentViewSize.height)
+
+        if newZoomScale > 1.0 {
+            newZoomScale = 1.0
+        }
+
+        scrollView.minimumZoomScale = 0.3 * newZoomScale
+
+        if newZoomScale == zoomScale {
+            newZoomScale += 0.000001
+        }
+
+        scrollView.zoomScale = newZoomScale
+        zoomScale = newZoomScale
+    }
 
     private var scrollView: UIScrollView {
         view as! UIScrollView
