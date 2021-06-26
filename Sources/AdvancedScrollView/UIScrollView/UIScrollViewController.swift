@@ -160,8 +160,8 @@ final class UIScrollViewController: UIViewController, UIScrollViewDelegate {
         scrollView.minimumZoomScale = minimumZoomScale * newZoomScaleMultiplier
         scrollView.maximumZoomScale = maximumZoomScale * newZoomScaleMultiplier
 
-        if zoomScaleMultiplier == newZoomScaleMultiplier {
-            newZoomScaleMultiplier += 0.000001
+        if zoomScaleMultiplier == newZoomScaleMultiplier { // Add a small delta to force update
+            newZoomScaleMultiplier += CGFloat.leastNormalMagnitude
         }
 
         zoomScaleMultiplier = newZoomScaleMultiplier
