@@ -115,7 +115,7 @@ final class UIScrollViewController: UIViewController, UIScrollViewDelegate {
     }
 
     func scrollViewDidZoom(_ scrollView: UIScrollView) {
-        zoomScale = scrollView.zoomScale
+        zoomScale = scrollView.zoomScale / (zoomScaleMultiplier != 0.0 ? zoomScaleMultiplier : 1.0)
         updateConstraintsToMatchZoomScale()
 
         delegate?.scrollViewController(self, zoomScaleDidChange: zoomScale)
@@ -132,8 +132,8 @@ final class UIScrollViewController: UIViewController, UIScrollViewDelegate {
         let contentViewSize = contentViewController.view.sizeThatFits(.greatestFiniteMagnitude)
         let scrollViewSize = scrollView.frame.size
 
-        let horizontalOffset = max((scrollViewSize.width - zoomScale * contentViewSize.width) * 0.5, 0.0)
-        let verticalOffset = max((scrollViewSize.height - zoomScale * contentViewSize.height) * 0.5, 0.0)
+        let horizontalOffset = max((scrollViewSize.width - scrollView.zoomScale * contentViewSize.width) * 0.5, 0.0)
+        let verticalOffset = max((scrollViewSize.height - scrollView.zoomScale * contentViewSize.height) * 0.5, 0.0)
 
         topConstraint.constant = verticalOffset
         leadingConstraint.constant = horizontalOffset
@@ -143,25 +143,29 @@ final class UIScrollViewController: UIViewController, UIScrollViewDelegate {
         view.layoutIfNeeded()
     }
 
+    /// Multiplier used to calculate zoom scale relative to the frame
+    private var zoomScaleMultiplier: CGFloat = 1.0
+
     private func zoomToFit() {
         let contentViewSize = contentViewController.view.sizeThatFits(.greatestFiniteMagnitude)
         let scrollViewSize = scrollView.frame.size
 
-        var newZoomScale = min(scrollViewSize.width / contentViewSize.width,
-                               scrollViewSize.height / contentViewSize.height)
+        var newZoomScaleMultiplier = min(scrollViewSize.width / contentViewSize.width,
+                                         scrollViewSize.height / contentViewSize.height)
 
-        if newZoomScale > 1.0 {
-            newZoomScale = 1.0
+        if newZoomScaleMultiplier > 1.0 {
+            newZoomScaleMultiplier = 1.0
         }
 
-        scrollView.minimumZoomScale = 0.3 * newZoomScale
+        scrollView.minimumZoomScale = minimumZoomScale * newZoomScaleMultiplier
+        scrollView.maximumZoomScale = maximumZoomScale * newZoomScaleMultiplier
 
-        if newZoomScale == zoomScale {
-            newZoomScale += 0.000001
+        if zoomScaleMultiplier == newZoomScaleMultiplier {
+            newZoomScaleMultiplier += 0.000001
         }
 
-        scrollView.zoomScale = newZoomScale
-        zoomScale = newZoomScale
+        zoomScaleMultiplier = newZoomScaleMultiplier
+        scrollView.zoomScale = zoomScale * newZoomScaleMultiplier
     }
 
     private var scrollView: UIScrollView {
