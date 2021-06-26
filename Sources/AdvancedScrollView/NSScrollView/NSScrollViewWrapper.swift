@@ -19,13 +19,20 @@ struct NSScrollViewWrapper<Content: View>: NSViewRepresentable {
 
     @Binding var magnification: CGFloat
 
+    let hasScrollers: Bool
+
     let content: Content
 
     let proxyDelegate: AdvancedScrollViewProxy.Delegate
 
-    init(magnificationRange: ClosedRange<CGFloat>, magnification: Binding<CGFloat>, proxyDelegate: AdvancedScrollViewProxy.Delegate, @ViewBuilder content: () -> Content) {
+    init(magnificationRange: ClosedRange<CGFloat>,
+         magnification: Binding<CGFloat>,
+         hasScrollers: Bool,
+         proxyDelegate: AdvancedScrollViewProxy.Delegate,
+         @ViewBuilder content: () -> Content) {
         self.magnificationRange = magnificationRange
         self._magnification = magnification
+        self.hasScrollers = hasScrollers
         self.proxyDelegate = proxyDelegate
         self.content = content()
     }
@@ -65,8 +72,8 @@ struct NSScrollViewWrapper<Content: View>: NSViewRepresentable {
             scrollView.maxMagnification = parent.magnificationRange.upperBound
             scrollView.magnification = parent.magnification
 
-            scrollView.hasHorizontalScroller = true
-            scrollView.hasVerticalScroller = true
+            scrollView.hasHorizontalScroller = parent.hasScrollers
+            scrollView.hasVerticalScroller = parent.hasScrollers
             scrollView.allowsMagnification = true
 
             let clipView = NSClipView()

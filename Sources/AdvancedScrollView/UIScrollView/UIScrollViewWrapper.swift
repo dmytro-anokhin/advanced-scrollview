@@ -18,13 +18,20 @@ struct UIScrollViewWrapper<Content: View>: UIViewControllerRepresentable {
 
     @Binding var zoomScale: CGFloat
 
+    let isScrollIndicatorVisible: Bool
+
     let content: Content
 
     let proxyDelegate: AdvancedScrollViewProxy.Delegate
 
-    init(zoomScaleRange: ClosedRange<CGFloat>, zoomScale: Binding<CGFloat>, proxyDelegate: AdvancedScrollViewProxy.Delegate, @ViewBuilder content: () -> Content) {
+    init(zoomScaleRange: ClosedRange<CGFloat>,
+         zoomScale: Binding<CGFloat>,
+         isScrollIndicatorVisible: Bool,
+         proxyDelegate: AdvancedScrollViewProxy.Delegate,
+         @ViewBuilder content: () -> Content) {
         self.zoomScaleRange = zoomScaleRange
         self._zoomScale = zoomScale
+        self.isScrollIndicatorVisible = isScrollIndicatorVisible
         self.proxyDelegate = proxyDelegate
         self.content = content()
     }
@@ -33,7 +40,8 @@ struct UIScrollViewWrapper<Content: View>: UIViewControllerRepresentable {
         let scrollViewController = UIScrollViewController(contentViewController: context.coordinator.hostingController,
                                                           minimumZoomScale: zoomScaleRange.lowerBound,
                                                           maximumZoomScale: zoomScaleRange.upperBound,
-                                                          zoomScale: zoomScale)
+                                                          zoomScale: zoomScale,
+                                                          isScrollIndicatorVisible: isScrollIndicatorVisible)
         scrollViewController.delegate = context.coordinator
 
         return scrollViewController

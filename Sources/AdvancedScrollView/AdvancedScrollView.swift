@@ -37,23 +37,37 @@ public struct AdvancedScrollView<Content: View>: View {
 
     @Binding var magnification: CGFloat
 
+    let isScrollIndicatorVisible: Bool
+
     let content: Content
 
-    public init(magnificationRange: ClosedRange<CGFloat> = 1.0...1.0, magnification: CGFloat = 1.0, @ViewBuilder content: (_ proxy: AdvancedScrollViewProxy) -> Content) {
-        self.init(magnificationRange: magnificationRange, magnification: .constant(magnification), content: content)
-    }
-
-    public init(magnificationRange: ClosedRange<CGFloat> = 1.0...1.0, magnification: Binding<CGFloat>, @ViewBuilder content: (_ proxy: AdvancedScrollViewProxy) -> Content) {
+    public init(magnificationRange: ClosedRange<CGFloat> = 1.0...1.0,
+                magnification: Binding<CGFloat> = .constant(1.0),
+                isScrollIndicatorVisible: Bool = true,
+                @ViewBuilder content: (_ proxy: AdvancedScrollViewProxy) -> Content) {
         self.magnificationRange = magnificationRange
         self._magnification = magnification
+        self.isScrollIndicatorVisible = isScrollIndicatorVisible
         self.content = content(AdvancedScrollViewProxy(delegate: proxyDelegate))
     }
 
     public var body: some View {
         #if os(macOS)
-        NSScrollViewWrapper(magnificationRange: magnificationRange, magnification: $magnification, proxyDelegate: proxyDelegate, content: { content })
+        NSScrollViewWrapper(magnificationRange: magnificationRange,
+                            magnification: $magnification,
+                            hasScrollers: isScrollIndicatorVisible,
+                            proxyDelegate: proxyDelegate,
+                            content: {
+                                content
+                            })
         #else
-        UIScrollViewWrapper(zoomScaleRange: magnificationRange, zoomScale: $magnification, proxyDelegate: proxyDelegate, content: { content })
+        UIScrollViewWrapper(zoomScaleRange: magnificationRange,
+                            zoomScale: $magnification,
+                            isScrollIndicatorVisible: isScrollIndicatorVisible,
+                            proxyDelegate: proxyDelegate,
+                            content: {
+                                content
+                            })
         #endif
     }
 

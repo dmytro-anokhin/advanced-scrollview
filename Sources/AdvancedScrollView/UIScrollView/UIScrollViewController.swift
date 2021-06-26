@@ -27,11 +27,18 @@ final class UIScrollViewController: UIViewController, UIScrollViewDelegate {
 
     private(set) var zoomScale: CGFloat
 
-    init(contentViewController: UIViewController, minimumZoomScale: CGFloat, maximumZoomScale: CGFloat, zoomScale: CGFloat) {
+    let isScrollIndicatorVisible: Bool
+
+    init(contentViewController: UIViewController,
+         minimumZoomScale: CGFloat,
+         maximumZoomScale: CGFloat,
+         zoomScale: CGFloat,
+         isScrollIndicatorVisible: Bool) {
         self.contentViewController = contentViewController
         self.minimumZoomScale = minimumZoomScale
         self.maximumZoomScale = maximumZoomScale
         self.zoomScale = zoomScale
+        self.isScrollIndicatorVisible = isScrollIndicatorVisible
 
         super.init(nibName: nil, bundle: nil)
     }
@@ -46,6 +53,8 @@ final class UIScrollViewController: UIViewController, UIScrollViewDelegate {
         let scrollView = UIScrollView(frame: .zero)
         scrollView.minimumZoomScale = minimumZoomScale
         scrollView.maximumZoomScale = maximumZoomScale
+        scrollView.showsHorizontalScrollIndicator = isScrollIndicatorVisible
+        scrollView.showsVerticalScrollIndicator = isScrollIndicatorVisible
 
         addChild(contentViewController)
         contentViewController.view.sizeToFit()
