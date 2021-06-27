@@ -10,9 +10,18 @@ import CoreGraphics
 
 public struct Magnification {
 
-    let range: ClosedRange<CGFloat>
+    /// Range from minimum to maximum magnification
+    public let range: ClosedRange<CGFloat>
 
-    let initialValue: CGFloat
+    /// Initial magnification, must be within the range
+    public let initialValue: CGFloat
 
-    let isRelative: Bool
+    /// Is magnification relative to the view frame or absolute to the content size
+    public let isRelative: Bool
+
+    public init(range: ClosedRange<CGFloat>, initialValue: CGFloat, isRelative: Bool) {
+        self.range = range
+        self.initialValue = initialValue
+        self.isRelative = isRelative
+    }
 }

@@ -14,9 +14,7 @@ import SwiftUI
 @available(iOS 13.0, *)
 struct UIScrollViewWrapper<Content: View>: UIViewControllerRepresentable {
 
-    let zoomScaleRange: ClosedRange<CGFloat>
-
-    @Binding var zoomScale: CGFloat
+    let magnification: Magnification
 
     let isScrollIndicatorVisible: Bool
 
@@ -24,13 +22,11 @@ struct UIScrollViewWrapper<Content: View>: UIViewControllerRepresentable {
 
     let proxyDelegate: AdvancedScrollViewProxy.Delegate
 
-    init(zoomScaleRange: ClosedRange<CGFloat>,
-         zoomScale: Binding<CGFloat>,
+    init(magnification: Magnification,
          isScrollIndicatorVisible: Bool,
          proxyDelegate: AdvancedScrollViewProxy.Delegate,
          @ViewBuilder content: () -> Content) {
-        self.zoomScaleRange = zoomScaleRange
-        self._zoomScale = zoomScale
+        self.magnification = magnification
         self.isScrollIndicatorVisible = isScrollIndicatorVisible
         self.proxyDelegate = proxyDelegate
         self.content = content()
@@ -38,9 +34,9 @@ struct UIScrollViewWrapper<Content: View>: UIViewControllerRepresentable {
 
     func makeUIViewController(context: Context) -> UIScrollViewController {
         let scrollViewController = UIScrollViewController(contentViewController: context.coordinator.hostingController,
-                                                          minimumZoomScale: zoomScaleRange.lowerBound,
-                                                          maximumZoomScale: zoomScaleRange.upperBound,
-                                                          zoomScale: zoomScale,
+                                                          minimumZoomScale: magnification.range.lowerBound,
+                                                          maximumZoomScale: magnification.range.upperBound,
+                                                          zoomScale: magnification.initialValue,
                                                           isScrollIndicatorVisible: isScrollIndicatorVisible)
         scrollViewController.delegate = context.coordinator
 
@@ -53,7 +49,6 @@ struct UIScrollViewWrapper<Content: View>: UIViewControllerRepresentable {
         }
 
         context.coordinator.hostingController.rootView = content
-        uiViewController.zoom(zoomScale)
     }
 
     class Coordinator: NSObject, UIScrollViewControllerDelegate {
@@ -68,11 +63,7 @@ struct UIScrollViewWrapper<Content: View>: UIViewControllerRepresentable {
         }
 
         func scrollViewController(_ scrollViewController: UIScrollViewController, zoomScaleDidChange zoomScale: CGFloat) {
-            parent.zoomScale = zoomScale
-        }
-
-        var contentSize: CGSize {
-            hostingController.sizeThatFits(in: .greatestFiniteMagnitude)
+            // TODO: Pass value up the hierarchy using binding
         }
     }
 

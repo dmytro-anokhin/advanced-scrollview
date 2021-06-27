@@ -33,36 +33,30 @@ public struct AdvancedScrollViewProxy {
 @available(macOS 10.15, iOS 13.0, *)
 public struct AdvancedScrollView<Content: View>: View {
 
-    let magnificationRange: ClosedRange<CGFloat>
+    public let magnification: Magnification
 
-    @Binding var magnification: CGFloat
-
-    let isScrollIndicatorVisible: Bool
+    public let isScrollIndicatorVisible: Bool
 
     let content: Content
 
-    public init(magnificationRange: ClosedRange<CGFloat> = 1.0...1.0,
-                magnification: Binding<CGFloat> = .constant(1.0),
+    public init(magnification: Magnification = Magnification(range: 1.0...4.0, initialValue: 1.0, isRelative: true),
                 isScrollIndicatorVisible: Bool = true,
                 @ViewBuilder content: (_ proxy: AdvancedScrollViewProxy) -> Content) {
-        self.magnificationRange = magnificationRange
-        self._magnification = magnification
+        self.magnification = magnification
         self.isScrollIndicatorVisible = isScrollIndicatorVisible
         self.content = content(AdvancedScrollViewProxy(delegate: proxyDelegate))
     }
 
     public var body: some View {
         #if os(macOS)
-        NSScrollViewWrapper(magnificationRange: magnificationRange,
-                            magnification: $magnification,
+        NSScrollViewWrapper(magnification: magnification,
                             hasScrollers: isScrollIndicatorVisible,
                             proxyDelegate: proxyDelegate,
                             content: {
                                 content
                             })
         #else
-        UIScrollViewWrapper(zoomScaleRange: magnificationRange,
-                            zoomScale: $magnification,
+        UIScrollViewWrapper(magnification: magnification,
                             isScrollIndicatorVisible: isScrollIndicatorVisible,
                             proxyDelegate: proxyDelegate,
                             content: {

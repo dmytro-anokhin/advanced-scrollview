@@ -15,9 +15,7 @@ import Combine
 @available(macOS 10.15, *)
 struct NSScrollViewWrapper<Content: View>: NSViewRepresentable {
 
-    let magnificationRange: ClosedRange<CGFloat>
-
-    @Binding var magnification: CGFloat
+    let magnification: Magnification
 
     let hasScrollers: Bool
 
@@ -25,13 +23,11 @@ struct NSScrollViewWrapper<Content: View>: NSViewRepresentable {
 
     let proxyDelegate: AdvancedScrollViewProxy.Delegate
 
-    init(magnificationRange: ClosedRange<CGFloat>,
-         magnification: Binding<CGFloat>,
+    init(magnification: Magnification,
          hasScrollers: Bool,
          proxyDelegate: AdvancedScrollViewProxy.Delegate,
          @ViewBuilder content: () -> Content) {
-        self.magnificationRange = magnificationRange
-        self._magnification = magnification
+        self.magnification = magnification
         self.hasScrollers = hasScrollers
         self.proxyDelegate = proxyDelegate
         self.content = content()
@@ -52,7 +48,7 @@ struct NSScrollViewWrapper<Content: View>: NSViewRepresentable {
         let size = context.coordinator.hostingView.fittingSize
         context.coordinator.hostingView.frame = CGRect(origin: .zero, size: size)
 
-        nsView.magnification = magnification
+        // nsView.magnification = magnification.initialValue
     }
 
     class Coordinator: NSObject {
@@ -68,9 +64,9 @@ struct NSScrollViewWrapper<Content: View>: NSViewRepresentable {
 
         var scrollView: NSScrollView {
             let scrollView = NSScrollView()
-            scrollView.minMagnification = parent.magnificationRange.lowerBound
-            scrollView.maxMagnification = parent.magnificationRange.upperBound
-            scrollView.magnification = parent.magnification
+            scrollView.minMagnification = parent.magnification.range.lowerBound
+            scrollView.maxMagnification = parent.magnification.range.upperBound
+            scrollView.magnification = parent.magnification.initialValue
 
             scrollView.hasHorizontalScroller = parent.hasScrollers
             scrollView.hasVerticalScroller = parent.hasScrollers
@@ -80,17 +76,17 @@ struct NSScrollViewWrapper<Content: View>: NSViewRepresentable {
             scrollView.contentView = clipView
             scrollView.documentView = hostingView
 
-            scrollView
-                .publisher(for: \.magnification)
-                .debounce(for: 0.0, scheduler: RunLoop.main) // Debounce to the next run loop iteration
-                .sink { [weak self] magnification in
-                    guard let self = self else {
-                        return
-                    }
-
-                    self.parent.magnification = magnification
-                }
-                .store(in: &cancellables)
+//            scrollView
+//                .publisher(for: \.magnification)
+//                .debounce(for: 0.0, scheduler: RunLoop.main) // Debounce to the next run loop iteration
+//                .sink { [weak self] magnification in
+//                    guard let self = self else {
+//                        return
+//                    }
+//
+//                    self.parent.magnification = magnification
+//                }
+//                .store(in: &cancellables)
 
             return scrollView
         }
