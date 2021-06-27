@@ -14,7 +14,7 @@ struct ScrollableImage: View {
     let image: Image
 
     var body: some View {
-        AdvancedScrollView(magnificationRange: 1.0...4.0) { _ in
+        AdvancedScrollView { _ in
             image
         }
     }
