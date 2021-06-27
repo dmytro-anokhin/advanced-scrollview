@@ -37,6 +37,7 @@ struct UIScrollViewWrapper<Content: View>: UIViewControllerRepresentable {
                                                           minimumZoomScale: magnification.range.lowerBound,
                                                           maximumZoomScale: magnification.range.upperBound,
                                                           zoomScale: magnification.initialValue,
+                                                          isZoomRelative: magnification.isRelative,
                                                           isScrollIndicatorVisible: isScrollIndicatorVisible)
         scrollViewController.delegate = context.coordinator
 
