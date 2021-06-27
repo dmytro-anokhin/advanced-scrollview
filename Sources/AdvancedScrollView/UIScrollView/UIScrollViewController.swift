@@ -95,20 +95,6 @@ final class UIScrollViewController: UIViewController, UIScrollViewDelegate {
         }
     }
 
-    func zoom(_ zoomScale: CGFloat) {
-        guard zoomScale != self.zoomScale else {
-            return
-        }
-
-        self.zoomScale = zoomScale
-
-        guard isViewLoaded else {
-            return
-        }
-
-        scrollView.zoomScale = zoomScale
-    }
-
     func scrollTo(_ rect: CGRect, animated: Bool) {
         guard isViewLoaded else {
             return

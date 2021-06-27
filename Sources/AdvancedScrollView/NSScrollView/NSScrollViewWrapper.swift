@@ -47,8 +47,6 @@ struct NSScrollViewWrapper<Content: View>: NSViewRepresentable {
 
         let size = context.coordinator.hostingView.fittingSize
         context.coordinator.hostingView.frame = CGRect(origin: .zero, size: size)
-
-        // nsView.magnification = magnification.initialValue
     }
 
     class Coordinator: NSObject {
@@ -75,18 +73,6 @@ struct NSScrollViewWrapper<Content: View>: NSViewRepresentable {
             let clipView = NSClipView()
             scrollView.contentView = clipView
             scrollView.documentView = hostingView
-
-//            scrollView
-//                .publisher(for: \.magnification)
-//                .debounce(for: 0.0, scheduler: RunLoop.main) // Debounce to the next run loop iteration
-//                .sink { [weak self] magnification in
-//                    guard let self = self else {
-//                        return
-//                    }
-//
-//                    self.parent.magnification = magnification
-//                }
-//                .store(in: &cancellables)
 
             return scrollView
         }
