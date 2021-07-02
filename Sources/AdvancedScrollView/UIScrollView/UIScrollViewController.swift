@@ -107,6 +107,10 @@ final class UIScrollViewController: UIViewController, UIScrollViewDelegate {
         scrollView.scrollRectToVisible(rect, animated: animated)
     }
 
+    var scrollView: UIScrollView {
+        view as! UIScrollView
+    }
+
     // MARK: - UIScrollViewDelegate
 
     func viewForZooming(in scrollView: UIScrollView) -> UIView? {
@@ -165,10 +169,6 @@ final class UIScrollViewController: UIViewController, UIScrollViewDelegate {
 
         zoomScaleMultiplier = newZoomScaleMultiplier
         scrollView.zoomScale = zoomScale * newZoomScaleMultiplier
-    }
-
-    private var scrollView: UIScrollView {
-        view as! UIScrollView
     }
 }
 

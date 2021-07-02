@@ -49,6 +49,14 @@ struct UIScrollViewWrapper<Content: View>: UIViewControllerRepresentable {
             uiViewController.scrollTo(rect, animated: animated)
         }
 
+        proxyDelegate.getContentOffset = {
+            uiViewController.scrollView.contentOffset
+        }
+
+        proxyDelegate.setContentOffset = { contentOffset in
+            uiViewController.scrollView.contentOffset = contentOffset
+        }
+
         context.coordinator.hostingController.rootView = content
     }
 
