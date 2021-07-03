@@ -44,17 +44,12 @@ struct NSScrollViewWrapper<Content: View>: NSViewRepresentable {
         }
 
         proxyDelegate.getContentOffset = {
-            // nsView.documentVisibleRect.origin
             nsView.contentView.bounds.origin
         }
 
         proxyDelegate.setContentOffset = { contentOffset in
             let point = nsView.contentView.convert(contentOffset, to: nsView.documentView)
             nsView.documentView?.scroll(point)
-
-//            var rect = nsView.documentVisibleRect
-//            rect.origin = contentOffset
-//            nsView.documentVisibleRect = rect
         }
 
         context.coordinator.hostingView.rootView = content
