@@ -52,6 +52,21 @@ struct NSScrollViewWrapper<Content: View>: NSViewRepresentable {
             nsView.documentView?.scroll(point)
         }
 
+        proxyDelegate.getContentSize = {
+            nsView.documentView?.bounds.size ?? .zero
+        }
+
+        proxyDelegate.getContentInset = {
+            EdgeInsets(top: nsView.contentInsets.top,
+                       leading: nsView.contentInsets.left,
+                       bottom: nsView.contentInsets.bottom,
+                       trailing: nsView.contentInsets.right)
+        }
+
+        proxyDelegate.setContentInset = {
+            nsView.contentInsets = NSEdgeInsets(top: $0.top, left: $0.leading, bottom: $0.bottom, right: $0.trailing)
+        }
+
         context.coordinator.hostingView.rootView = content
 
         let size = context.coordinator.hostingView.fittingSize

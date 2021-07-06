@@ -20,11 +20,17 @@ public struct AdvancedScrollViewProxy {
             scrollTo(rect, animated)
         }
 
+        // Closures implemented by scroll view wrappers
+
         var scrollTo: ((_ rect: CGRect, _ animated: Bool) -> Void)!
 
         var getContentOffset: (() -> CGPoint)!
-
         var setContentOffset: ((_ contentOffset: CGPoint) -> Void)!
+
+        var getContentSize: (() -> CGSize)!
+
+        var getContentInset: (() -> EdgeInsets)!
+        var setContentInset: ((_ contentInset: EdgeInsets) -> Void)!
 
         var contentOffset: CGPoint {
             get {
@@ -33,6 +39,20 @@ public struct AdvancedScrollViewProxy {
 
             set {
                 setContentOffset(newValue)
+            }
+        }
+
+        var contentSize: CGSize {
+            getContentSize()
+        }
+
+        var contentInset: EdgeInsets {
+            get {
+                getContentInset()
+            }
+
+            set {
+                setContentInset(newValue)
             }
         }
     }
@@ -50,6 +70,21 @@ public struct AdvancedScrollViewProxy {
 
         set {
             delegate.contentOffset = newValue
+        }
+    }
+
+    /// Content size is read-only on macOS so it is here
+    public var contentSize: CGSize {
+        delegate.contentSize
+    }
+
+    public var contentInset: EdgeInsets {
+        get {
+            delegate.contentInset
+        }
+
+        set {
+            delegate.contentInset = newValue
         }
     }
 }
