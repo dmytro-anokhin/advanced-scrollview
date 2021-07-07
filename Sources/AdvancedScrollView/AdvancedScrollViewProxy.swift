@@ -32,6 +32,8 @@ public struct AdvancedScrollViewProxy {
         var getContentInset: (() -> EdgeInsets)!
         var setContentInset: ((_ contentInset: EdgeInsets) -> Void)!
 
+        var getVisibleRect: (() -> CGRect)!
+
         var contentOffset: CGPoint {
             get {
                 getContentOffset()
@@ -54,6 +56,10 @@ public struct AdvancedScrollViewProxy {
             set {
                 setContentInset(newValue)
             }
+        }
+
+        var visibleRect: CGRect {
+            getVisibleRect()
         }
     }
 
@@ -86,5 +92,9 @@ public struct AdvancedScrollViewProxy {
         set {
             delegate.contentInset = newValue
         }
+    }
+
+    public var visibleRect: CGRect {
+        delegate.visibleRect
     }
 }

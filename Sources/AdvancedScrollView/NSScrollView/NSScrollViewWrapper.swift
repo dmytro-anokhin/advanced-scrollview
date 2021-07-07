@@ -67,6 +67,10 @@ struct NSScrollViewWrapper<Content: View>: NSViewRepresentable {
             nsView.contentInsets = NSEdgeInsets(top: $0.top, left: $0.leading, bottom: $0.bottom, right: $0.trailing)
         }
 
+        proxyDelegate.getVisibleRect = {
+            nsView.documentVisibleRect
+        }
+
         context.coordinator.hostingView.rootView = content
 
         let size = context.coordinator.hostingView.fittingSize
