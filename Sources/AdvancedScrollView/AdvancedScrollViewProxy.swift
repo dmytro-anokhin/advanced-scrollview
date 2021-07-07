@@ -36,6 +36,8 @@ public struct AdvancedScrollViewProxy {
 
         var getScrollerInsets: (() -> EdgeInsets)!
 
+        var getMagnification: (() -> CGFloat)!
+
         var contentOffset: CGPoint {
             get {
                 getContentOffset()
@@ -66,6 +68,10 @@ public struct AdvancedScrollViewProxy {
 
         var scrollerInsets: EdgeInsets {
             getScrollerInsets()
+        }
+
+        var magnification: CGFloat {
+            getMagnification()
         }
     }
 
@@ -106,5 +112,9 @@ public struct AdvancedScrollViewProxy {
 
     public var scrollerInsets: EdgeInsets {
         delegate.scrollerInsets
+    }
+
+    public var magnification: CGFloat {
+        delegate.magnification
     }
 }

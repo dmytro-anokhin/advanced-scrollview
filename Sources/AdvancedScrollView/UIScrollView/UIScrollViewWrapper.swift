@@ -77,6 +77,10 @@ struct UIScrollViewWrapper<Content: View>: UIViewControllerRepresentable {
             EdgeInsets()
         }
 
+        proxyDelegate.getMagnification = {
+            uiViewController.scrollView.zoomScale
+        }
+
         context.coordinator.hostingController.rootView = content
     }
 

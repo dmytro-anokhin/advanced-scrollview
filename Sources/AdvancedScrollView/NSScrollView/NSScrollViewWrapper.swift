@@ -72,6 +72,10 @@ struct NSScrollViewWrapper<Content: View>: NSViewRepresentable {
             EdgeInsets(nsView.scrollerInsets)
         }
 
+        proxyDelegate.getMagnification = {
+            nsView.magnification
+        }
+
         context.coordinator.hostingView.rootView = content
 
         let size = context.coordinator.hostingView.fittingSize
