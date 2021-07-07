@@ -57,18 +57,19 @@ struct NSScrollViewWrapper<Content: View>: NSViewRepresentable {
         }
 
         proxyDelegate.getContentInset = {
-            EdgeInsets(top: nsView.contentInsets.top,
-                       leading: nsView.contentInsets.left,
-                       bottom: nsView.contentInsets.bottom,
-                       trailing: nsView.contentInsets.right)
+            EdgeInsets(nsView.contentInsets)
         }
 
         proxyDelegate.setContentInset = {
-            nsView.contentInsets = NSEdgeInsets(top: $0.top, left: $0.leading, bottom: $0.bottom, right: $0.trailing)
+            nsView.contentInsets = NSEdgeInsets($0)
         }
 
         proxyDelegate.getVisibleRect = {
             nsView.documentVisibleRect
+        }
+
+        proxyDelegate.getScrollerInsets = {
+            EdgeInsets(nsView.scrollerInsets)
         }
 
         context.coordinator.hostingView.rootView = content

@@ -62,16 +62,19 @@ struct UIScrollViewWrapper<Content: View>: UIViewControllerRepresentable {
         }
 
         proxyDelegate.getContentInset = {
-            let contentInset = uiViewController.scrollView.contentInset
-            return EdgeInsets(top: contentInset.top, leading: contentInset.left, bottom: contentInset.bottom, trailing: contentInset.right)
+            EdgeInsets(uiViewController.scrollView.contentInset)
         }
 
         proxyDelegate.setContentInset = {
-            uiViewController.scrollView.contentInset = UIEdgeInsets(top: $0.top, left: $0.leading, bottom: $0.bottom, right: $0.trailing)
+            uiViewController.scrollView.contentInset = UIEdgeInsets($0)
         }
 
         proxyDelegate.getVisibleRect = {
             uiViewController.scrollView.bounds
+        }
+
+        proxyDelegate.getScrollerInsets = {
+            EdgeInsets()
         }
 
         context.coordinator.hostingController.rootView = content

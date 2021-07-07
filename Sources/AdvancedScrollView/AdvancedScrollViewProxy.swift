@@ -34,6 +34,8 @@ public struct AdvancedScrollViewProxy {
 
         var getVisibleRect: (() -> CGRect)!
 
+        var getScrollerInsets: (() -> EdgeInsets)!
+
         var contentOffset: CGPoint {
             get {
                 getContentOffset()
@@ -60,6 +62,10 @@ public struct AdvancedScrollViewProxy {
 
         var visibleRect: CGRect {
             getVisibleRect()
+        }
+
+        var scrollerInsets: EdgeInsets {
+            getScrollerInsets()
         }
     }
 
@@ -96,5 +102,9 @@ public struct AdvancedScrollViewProxy {
 
     public var visibleRect: CGRect {
         delegate.visibleRect
+    }
+
+    public var scrollerInsets: EdgeInsets {
+        delegate.scrollerInsets
     }
 }
