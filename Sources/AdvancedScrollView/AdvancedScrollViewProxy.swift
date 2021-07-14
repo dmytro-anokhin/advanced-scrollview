@@ -11,6 +11,62 @@ import SwiftUI
 @available(macOS 10.15, iOS 13.0, *)
 public struct AdvancedScrollViewProxy {
 
+    init(delegate: Delegate) {
+        self.delegate = delegate
+    }
+
+    var delegate: Delegate
+
+    public func scrollTo(_ rect: CGRect, animated: Bool) {
+        delegate.performScrollTo(rect, animated: animated)
+    }
+
+    public var contentOffset: CGPoint {
+        get {
+            delegate.contentOffset
+        }
+
+        set {
+            delegate.contentOffset = newValue
+        }
+    }
+
+    /// Content size is read-only on macOS so it is here
+    public var contentSize: CGSize {
+        delegate.contentSize
+    }
+
+    public var contentInset: EdgeInsets {
+        get {
+            delegate.contentInset
+        }
+
+        set {
+            delegate.contentInset = newValue
+        }
+    }
+
+    public var visibleRect: CGRect {
+        delegate.visibleRect
+    }
+
+    public var scrollerInsets: EdgeInsets {
+        delegate.scrollerInsets
+    }
+
+    public var magnification: CGFloat {
+        delegate.magnification
+    }
+
+    public var isLiveMagnify: Bool {
+        delegate.getIsLiveMagnify()
+    }
+}
+
+
+@available(macOS 10.15, iOS 13.0, *)
+extension AdvancedScrollViewProxy {
+
     final class Delegate {
 
         init() {
@@ -79,56 +135,5 @@ public struct AdvancedScrollViewProxy {
         var isLiveMagnify: Bool {
             getIsLiveMagnify()
         }
-    }
-
-    init(delegate: Delegate) {
-        self.delegate = delegate
-    }
-
-    var delegate: Delegate
-
-    public func scrollTo(_ rect: CGRect, animated: Bool) {
-        delegate.performScrollTo(rect, animated: animated)
-    }
-
-    public var contentOffset: CGPoint {
-        get {
-            delegate.contentOffset
-        }
-
-        set {
-            delegate.contentOffset = newValue
-        }
-    }
-
-    /// Content size is read-only on macOS so it is here
-    public var contentSize: CGSize {
-        delegate.contentSize
-    }
-
-    public var contentInset: EdgeInsets {
-        get {
-            delegate.contentInset
-        }
-
-        set {
-            delegate.contentInset = newValue
-        }
-    }
-
-    public var visibleRect: CGRect {
-        delegate.visibleRect
-    }
-
-    public var scrollerInsets: EdgeInsets {
-        delegate.scrollerInsets
-    }
-
-    public var magnification: CGFloat {
-        delegate.magnification
-    }
-
-    public var isLiveMagnify: Bool {
-        delegate.getIsLiveMagnify()
     }
 }
