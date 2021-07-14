@@ -1,5 +1,5 @@
 //
-//  AdvancedNSScrollView.swift
+//  NSScrollViewSubclass.swift
 //  
 //
 //  Created by Dmytro Anokhin on 13/07/2021.
@@ -12,7 +12,7 @@ import Combine
 
 
 @available(macOS 10.15, *)
-final class AdvancedNSScrollView: NSScrollView {
+final class NSScrollViewSubclass: NSScrollView {
 
     override init(frame frameRect: NSRect) {
         super.init(frame: frameRect)

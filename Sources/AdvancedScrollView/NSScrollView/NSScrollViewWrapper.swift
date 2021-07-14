@@ -33,11 +33,11 @@ struct NSScrollViewWrapper<Content: View>: NSViewRepresentable {
         self.content = content()
     }
 
-    func makeNSView(context: Context) -> AdvancedNSScrollView {
+    func makeNSView(context: Context) -> NSScrollViewSubclass {
         context.coordinator.scrollView
     }
 
-    func updateNSView(_ nsView: AdvancedNSScrollView, context: Context) {
+    func updateNSView(_ nsView: NSScrollViewSubclass, context: Context) {
         proxyDelegate.scrollTo = { rect, animated in
             let center = CGPoint(x: rect.midX, y: rect.midY)
             nsView.scroll(center)
@@ -97,8 +97,8 @@ struct NSScrollViewWrapper<Content: View>: NSViewRepresentable {
             self.parent = parent
         }
 
-        var scrollView: AdvancedNSScrollView {
-            let scrollView = AdvancedNSScrollView()
+        var scrollView: NSScrollViewSubclass {
+            let scrollView = NSScrollViewSubclass()
             scrollView.minMagnification = parent.magnification.range.lowerBound
             scrollView.maxMagnification = parent.magnification.range.upperBound
             scrollView.magnification = parent.magnification.initialValue
