@@ -44,7 +44,44 @@ final class NSScrollViewSubclass: NSScrollView {
 
     private(set) var isLiveMagnify: Bool = false
 
+    typealias ClickGestureAction = (_ location: CGPoint) -> Void
+
+    func onClickGesture(count: Int = 1, perform action: ClickGestureAction?) {
+        defer {
+            clickGestureAction = action
+        }
+
+        if action == nil {
+            guard let clickGestureRecognizer = clickGestureRecognizer else {
+                return
+            }
+
+            removeGestureRecognizer(clickGestureRecognizer)
+        }
+        else {
+            let selector = #selector(handleClick(gestureRecognizer:))
+            let gestureRecognizer = NSClickGestureRecognizer(target: self, action: selector)
+            gestureRecognizer.numberOfClicksRequired = count
+            gestureRecognizer.numberOfTouchesRequired = 1
+
+            addGestureRecognizer(gestureRecognizer)
+            clickGestureRecognizer = gestureRecognizer
+        }
+    }
+
+    @objc func handleClick(gestureRecognizer: NSClickGestureRecognizer) {
+        guard let clickGestureAction = clickGestureAction else {
+            return
+        }
+
+        let location = gestureRecognizer.location(in: documentView)
+        clickGestureAction(location)
+    }
+
     private var notificaitonsCancellables: Set<AnyCancellable> = []
+
+    private weak var clickGestureRecognizer: NSClickGestureRecognizer?
+    private var clickGestureAction: ClickGestureAction?
 }
 
 #endif

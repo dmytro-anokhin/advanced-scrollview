@@ -20,9 +20,12 @@ public struct AdvancedScrollView<Content: View>: View {
     public init(magnification: Magnification = Magnification(range: 1.0...4.0, initialValue: 1.0, isRelative: true),
                 isScrollIndicatorVisible: Bool = true,
                 @ViewBuilder content: (_ proxy: AdvancedScrollViewProxy) -> Content) {
+
+        let proxy = AdvancedScrollViewProxy(delegate: proxyDelegate)
+
         self.magnification = magnification
         self.isScrollIndicatorVisible = isScrollIndicatorVisible
-        self.content = content(AdvancedScrollViewProxy(delegate: proxyDelegate))
+        self.content = content(proxy)
     }
 
     public var body: some View {
@@ -30,6 +33,7 @@ public struct AdvancedScrollView<Content: View>: View {
         NSScrollViewRepresentable(magnification: magnification,
                             hasScrollers: isScrollIndicatorVisible,
                             proxyDelegate: proxyDelegate,
+                            proxyGesturesDelegate: gesturesDelegate,
                             content: {
                                 content
                             })
@@ -42,6 +46,8 @@ public struct AdvancedScrollView<Content: View>: View {
                             })
         #endif
     }
+
+    let gesturesDelegate = AdvancedScrollViewProxy.GesturesDelegate()
 
     private let proxyDelegate = AdvancedScrollViewProxy.Delegate()
 }

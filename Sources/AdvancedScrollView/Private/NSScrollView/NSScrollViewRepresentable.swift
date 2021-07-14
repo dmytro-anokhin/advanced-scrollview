@@ -23,13 +23,17 @@ struct NSScrollViewRepresentable<Content: View>: NSViewRepresentable {
 
     let proxyDelegate: AdvancedScrollViewProxy.Delegate
 
+    let proxyGesturesDelegate: AdvancedScrollViewProxy.GesturesDelegate
+
     init(magnification: Magnification,
          hasScrollers: Bool,
          proxyDelegate: AdvancedScrollViewProxy.Delegate,
+         proxyGesturesDelegate: AdvancedScrollViewProxy.GesturesDelegate,
          @ViewBuilder content: () -> Content) {
         self.magnification = magnification
         self.hasScrollers = hasScrollers
         self.proxyDelegate = proxyDelegate
+        self.proxyGesturesDelegate = proxyGesturesDelegate
         self.content = content()
     }
 
@@ -78,6 +82,15 @@ struct NSScrollViewRepresentable<Content: View>: NSViewRepresentable {
 
         proxyDelegate.getIsLiveMagnify = {
             nsView.isLiveMagnify
+        }
+
+        if let tapContentGestureInfo = proxyGesturesDelegate.tapContentGestureInfo {
+            nsView.onClickGesture(count: tapContentGestureInfo.count) { location in
+                let proxy = AdvancedScrollViewProxy(delegate: proxyDelegate)
+                tapContentGestureInfo.action(location, proxy)
+            }
+        } else {
+            nsView.onClickGesture(count: 0, perform: nil)
         }
 
         context.coordinator.hostingView.rootView = content
