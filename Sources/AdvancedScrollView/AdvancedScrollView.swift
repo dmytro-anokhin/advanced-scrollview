@@ -34,7 +34,7 @@ public struct AdvancedScrollView<Content: View>: View {
                                 content
                             })
         #else
-        UIScrollViewWrapper(magnification: magnification,
+        UIScrollViewControllerRepresentable(magnification: magnification,
                             isScrollIndicatorVisible: isScrollIndicatorVisible,
                             proxyDelegate: proxyDelegate,
                             content: {

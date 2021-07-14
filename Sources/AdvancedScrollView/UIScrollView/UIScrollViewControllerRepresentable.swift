@@ -1,5 +1,5 @@
 //
-//  UIScrollViewWrapper.swift
+//  UIScrollViewControllerRepresentable.swift
 //  
 //
 //  Created by Dmytro Anokhin on 23/06/2021.
@@ -12,7 +12,7 @@ import SwiftUI
 
 
 @available(iOS 13.0, *)
-struct UIScrollViewWrapper<Content: View>: UIViewControllerRepresentable {
+struct UIScrollViewControllerRepresentable<Content: View>: UIViewControllerRepresentable {
 
     let magnification: Magnification
 
@@ -92,9 +92,9 @@ struct UIScrollViewWrapper<Content: View>: UIViewControllerRepresentable {
 
         let hostingController: UIHostingController<Content>
 
-        var parent: UIScrollViewWrapper
+        var parent: UIScrollViewControllerRepresentable
 
-        init(parent: UIScrollViewWrapper) {
+        init(parent: UIScrollViewControllerRepresentable) {
             self.hostingController = UIHostingController(rootView: parent.content)
             self.parent = parent
         }
