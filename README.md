@@ -20,3 +20,16 @@ struct ScrollableImage: View {
     }
 }
 ```
+
+`AdvancedScrollView` takes `ViewBuilder` closure and will automatically scroll content it returns. Additionally you can configure magnification behaviour using `Magnification` struct. `AdvancedScrollViewProxy` object provides access to common properties and methods of underlying `UIScrollView`/`NSScrollView`.
+
+```swift
+AdvancedScrollView(magnification: Magnification(range: 1.0...4.0, initialValue: 1.0, isRelative: false)) { proxy in
+    image
+        .onTapGesture {
+            print(proxy.visibleRect)
+        }
+}
+```
+
+Documentation is in development, names of properties and merthods are self-explanatory, and follow such of `UIScrollView`/`NSScrollView`.
