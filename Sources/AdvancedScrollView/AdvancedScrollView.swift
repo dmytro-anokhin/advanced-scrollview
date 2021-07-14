@@ -27,7 +27,7 @@ public struct AdvancedScrollView<Content: View>: View {
 
     public var body: some View {
         #if os(macOS)
-        NSScrollViewWrapper(magnification: magnification,
+        NSScrollViewRepresentable(magnification: magnification,
                             hasScrollers: isScrollIndicatorVisible,
                             proxyDelegate: proxyDelegate,
                             content: {
