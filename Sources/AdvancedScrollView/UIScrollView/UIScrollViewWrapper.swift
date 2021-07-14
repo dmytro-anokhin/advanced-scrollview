@@ -81,6 +81,10 @@ struct UIScrollViewWrapper<Content: View>: UIViewControllerRepresentable {
             uiViewController.scrollView.zoomScale
         }
 
+        proxyDelegate.getIsLiveMagnify = {
+            uiViewController.scrollView.isZooming || uiViewController.scrollView.isZoomBouncing
+        }
+
         context.coordinator.hostingController.rootView = content
     }
 

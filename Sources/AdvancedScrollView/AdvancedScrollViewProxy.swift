@@ -38,6 +38,8 @@ public struct AdvancedScrollViewProxy {
 
         var getMagnification: (() -> CGFloat)!
 
+        var getIsLiveMagnify: (() -> Bool)!
+
         var contentOffset: CGPoint {
             get {
                 getContentOffset()
@@ -73,6 +75,14 @@ public struct AdvancedScrollViewProxy {
         var magnification: CGFloat {
             getMagnification()
         }
+
+        var isLiveMagnify: Bool {
+            getIsLiveMagnify()
+        }
+    }
+
+    init(delegate: Delegate) {
+        self.delegate = delegate
     }
 
     var delegate: Delegate
@@ -116,5 +126,9 @@ public struct AdvancedScrollViewProxy {
 
     public var magnification: CGFloat {
         delegate.magnification
+    }
+
+    public var isLiveMagnify: Bool {
+        delegate.getIsLiveMagnify()
     }
 }
