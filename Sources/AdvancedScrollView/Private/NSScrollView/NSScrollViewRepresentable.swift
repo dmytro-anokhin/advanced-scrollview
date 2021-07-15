@@ -38,7 +38,24 @@ struct NSScrollViewRepresentable<Content: View>: NSViewRepresentable {
     }
 
     func makeNSView(context: Context) -> NSScrollViewSubclass {
-        context.coordinator.scrollView
+        let scrollView = context.coordinator.scrollView
+
+        if let tapContentGestureInfo = proxyGesturesDelegate.tapContentGestureInfo {
+            scrollView.onClickGesture(count: tapContentGestureInfo.count) { location in
+                let proxy = AdvancedScrollViewProxy(delegate: proxyDelegate)
+                tapContentGestureInfo.action(location, proxy)
+            }
+        }
+
+        if let dragContentGestureInfo = proxyGesturesDelegate.dragContentGestureInfo {
+            scrollView.onPanGesture { state, location, translation in
+                let translation = CGSize(width: translation.x, height: translation.y)
+                let proxy = AdvancedScrollViewProxy(delegate: proxyDelegate)
+                dragContentGestureInfo.action(state, location, translation, proxy)
+            }
+        }
+
+        return scrollView
     }
 
     func updateNSView(_ nsView: NSScrollViewSubclass, context: Context) {
@@ -82,25 +99,6 @@ struct NSScrollViewRepresentable<Content: View>: NSViewRepresentable {
 
         proxyDelegate.getIsLiveMagnify = {
             nsView.isLiveMagnify
-        }
-
-        if let tapContentGestureInfo = proxyGesturesDelegate.tapContentGestureInfo {
-            nsView.onClickGesture(count: tapContentGestureInfo.count) { location in
-                let proxy = AdvancedScrollViewProxy(delegate: proxyDelegate)
-                tapContentGestureInfo.action(location, proxy)
-            }
-        } else {
-            nsView.onClickGesture(count: 0, perform: nil)
-        }
-
-        if let dragContentGestureInfo = proxyGesturesDelegate.dragContentGestureInfo {
-            nsView.onPanGesture { state, location, translation in
-                let translation = CGSize(width: translation.x, height: translation.y)
-                let proxy = AdvancedScrollViewProxy(delegate: proxyDelegate)
-                dragContentGestureInfo.action(state, location, translation, proxy)
-            }
-        } else {
-            nsView.onPanGesture(perform: nil)
         }
 
         context.coordinator.hostingView.rootView = content

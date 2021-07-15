@@ -15,34 +15,33 @@ public struct AdvancedScrollView<Content: View>: View {
 
     public let isScrollIndicatorVisible: Bool
 
-    let content: Content
+    let content: (_ proxy: AdvancedScrollViewProxy) -> Content
 
     public init(magnification: Magnification = Magnification(range: 1.0...4.0, initialValue: 1.0, isRelative: true),
                 isScrollIndicatorVisible: Bool = true,
-                @ViewBuilder content: (_ proxy: AdvancedScrollViewProxy) -> Content) {
-
-        let proxy = AdvancedScrollViewProxy(delegate: proxyDelegate)
-
+                @ViewBuilder content: @escaping (_ proxy: AdvancedScrollViewProxy) -> Content) {
         self.magnification = magnification
         self.isScrollIndicatorVisible = isScrollIndicatorVisible
-        self.content = content(proxy)
+        self.content = content
     }
 
     public var body: some View {
+        let proxy = AdvancedScrollViewProxy(delegate: proxyDelegate)
+
         #if os(macOS)
-        NSScrollViewRepresentable(magnification: magnification,
+        return NSScrollViewRepresentable(magnification: magnification,
                             hasScrollers: isScrollIndicatorVisible,
                             proxyDelegate: proxyDelegate,
                             proxyGesturesDelegate: gesturesDelegate,
                             content: {
-                                content
+                                content(proxy)
                             })
         #else
-        UIScrollViewControllerRepresentable(magnification: magnification,
+        return UIScrollViewControllerRepresentable(magnification: magnification,
                             isScrollIndicatorVisible: isScrollIndicatorVisible,
                             proxyDelegate: proxyDelegate,
                             content: {
-                                content
+                                content(proxy)
                             })
         #endif
     }
