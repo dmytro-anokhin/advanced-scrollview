@@ -47,7 +47,7 @@ public struct AdvancedScrollView<Content: View>: View {
         #endif
     }
 
-    let gesturesDelegate = AdvancedScrollViewProxy.GesturesDelegate()
+    let gesturesDelegate = AdvancedScrollViewProxy.GesturesDelegate.shared
 
-    private let proxyDelegate = AdvancedScrollViewProxy.Delegate()
+    private let proxyDelegate = AdvancedScrollViewProxy.Delegate.shared
 }

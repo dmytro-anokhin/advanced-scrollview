@@ -13,9 +13,13 @@ extension AdvancedScrollViewProxy {
 
     final class GesturesDelegate {
 
+        static let shared = GesturesDelegate()
+
         init() {
         }
 
         var tapContentGestureInfo: TapContentGestureInfo?
+
+        var dragContentGestureInfo: DragContentGestureInfo?
     }
 }

@@ -13,6 +13,8 @@ extension AdvancedScrollViewProxy {
 
     final class Delegate {
 
+        static let shared = Delegate()
+
         init() {
         }
 

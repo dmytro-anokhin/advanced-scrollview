@@ -15,3 +15,10 @@ struct TapContentGestureInfo {
 
     var action: TapContentAction
 }
+
+
+@available(macOS 10.15, iOS 13.0, *)
+struct DragContentGestureInfo {
+
+    var action: DragContentAction
+}

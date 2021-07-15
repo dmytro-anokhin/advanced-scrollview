@@ -93,6 +93,16 @@ struct NSScrollViewRepresentable<Content: View>: NSViewRepresentable {
             nsView.onClickGesture(count: 0, perform: nil)
         }
 
+        if let dragContentGestureInfo = proxyGesturesDelegate.dragContentGestureInfo {
+            nsView.onPanGesture { state, location, translation in
+                let translation = CGSize(width: translation.x, height: translation.y)
+                let proxy = AdvancedScrollViewProxy(delegate: proxyDelegate)
+                dragContentGestureInfo.action(state, location, translation, proxy)
+            }
+        } else {
+            nsView.onPanGesture(perform: nil)
+        }
+
         context.coordinator.hostingView.rootView = content
 
         let size = context.coordinator.hostingView.fittingSize
