@@ -40,6 +40,48 @@ struct NSScrollViewRepresentable<Content: View>: NSViewRepresentable {
     func makeNSView(context: Context) -> NSScrollViewSubclass {
         let scrollView = context.coordinator.scrollView
 
+        proxyDelegate.scrollTo = { rect, animated in
+            let center = CGPoint(x: rect.midX, y: rect.midY)
+            scrollView.scroll(center)
+        }
+
+        proxyDelegate.getContentOffset = {
+            scrollView.contentView.bounds.origin
+        }
+
+        proxyDelegate.setContentOffset = { contentOffset in
+            let point = scrollView.contentView.convert(contentOffset, to: scrollView.documentView)
+            scrollView.documentView?.scroll(point)
+        }
+
+        proxyDelegate.getContentSize = {
+            scrollView.documentView?.bounds.size ?? .zero
+        }
+
+        proxyDelegate.getContentInset = {
+            EdgeInsets(scrollView.contentInsets)
+        }
+
+        proxyDelegate.setContentInset = {
+            scrollView.contentInsets = NSEdgeInsets($0)
+        }
+
+        proxyDelegate.getVisibleRect = {
+            scrollView.documentVisibleRect
+        }
+
+        proxyDelegate.getScrollerInsets = {
+            EdgeInsets(scrollView.scrollerInsets)
+        }
+
+        proxyDelegate.getMagnification = {
+            scrollView.magnification
+        }
+
+        proxyDelegate.getIsLiveMagnify = {
+            scrollView.isLiveMagnify
+        }
+
         if let tapContentGestureInfo = proxyGesturesDelegate.tapContentGestureInfo {
             scrollView.onClickGesture(count: tapContentGestureInfo.count) { location in
                 let proxy = AdvancedScrollViewProxy(delegate: proxyDelegate)
@@ -59,48 +101,6 @@ struct NSScrollViewRepresentable<Content: View>: NSViewRepresentable {
     }
 
     func updateNSView(_ nsView: NSScrollViewSubclass, context: Context) {
-        proxyDelegate.scrollTo = { rect, animated in
-            let center = CGPoint(x: rect.midX, y: rect.midY)
-            nsView.scroll(center)
-        }
-
-        proxyDelegate.getContentOffset = {
-            nsView.contentView.bounds.origin
-        }
-
-        proxyDelegate.setContentOffset = { contentOffset in
-            let point = nsView.contentView.convert(contentOffset, to: nsView.documentView)
-            nsView.documentView?.scroll(point)
-        }
-
-        proxyDelegate.getContentSize = {
-            nsView.documentView?.bounds.size ?? .zero
-        }
-
-        proxyDelegate.getContentInset = {
-            EdgeInsets(nsView.contentInsets)
-        }
-
-        proxyDelegate.setContentInset = {
-            nsView.contentInsets = NSEdgeInsets($0)
-        }
-
-        proxyDelegate.getVisibleRect = {
-            nsView.documentVisibleRect
-        }
-
-        proxyDelegate.getScrollerInsets = {
-            EdgeInsets(nsView.scrollerInsets)
-        }
-
-        proxyDelegate.getMagnification = {
-            nsView.magnification
-        }
-
-        proxyDelegate.getIsLiveMagnify = {
-            nsView.isLiveMagnify
-        }
-
         context.coordinator.hostingView.rootView = content
 
         let size = context.coordinator.hostingView.fittingSize
