@@ -106,8 +106,6 @@ final class NSScrollViewSubclass: NSScrollView, NSGestureRecognizerDelegate {
             return
         }
 
-        // print("Handle pan: \(gestureRecognizer.state) translation: \(gestureRecognizer.translation(in: documentView))")
-
         guard let state = ContinuousGestureState(gestureRecognizer.state) else {
             assertionFailure("Unexpected pan gesture recognizer state: \(gestureRecognizer.state)")
             return
