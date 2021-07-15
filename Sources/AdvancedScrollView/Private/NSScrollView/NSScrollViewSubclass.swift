@@ -70,7 +70,7 @@ final class NSScrollViewSubclass: NSScrollView, NSGestureRecognizerDelegate {
         let gestureRecognizer = NSClickGestureRecognizer(target: self, action: selector)
         gestureRecognizer.numberOfClicksRequired = count
         gestureRecognizer.numberOfTouchesRequired = 1
-        addGestureRecognizer(gestureRecognizer)
+        contentView.addGestureRecognizer(gestureRecognizer)
 
         clickGestureRecognizer = gestureRecognizer
         clickGestureAction = action
@@ -124,7 +124,7 @@ final class NSScrollViewSubclass: NSScrollView, NSGestureRecognizerDelegate {
         let gestureRecognizer = NSPanGestureRecognizer(target: self, action: selector)
         gestureRecognizer.numberOfTouchesRequired = 1
         gestureRecognizer.delegate = self
-        addGestureRecognizer(gestureRecognizer)
+        contentView.addGestureRecognizer(gestureRecognizer)
 
         panGestureRecognizer = gestureRecognizer
         panGestureAction = action
