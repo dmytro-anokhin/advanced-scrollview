@@ -7,10 +7,23 @@
 
 import SwiftUI
 
-
+/// Action for tap gesture
+///
+/// - Parameters:
+///     - location: Location in the content view coordinates.
+///     - proxy: Scroll view proxy.
 @available(macOS 10.15, iOS 13.0, *)
 public typealias TapContentAction = (_ location: CGPoint, _ proxy: AdvancedScrollViewProxy) -> Void
 
+/// Action for drag (pan) gesture
+///
+/// - Parameters:
+///     - state: The state of the gesture. See `ContinuousGestureState` for reference.
+///     - location: Location in the content view coordinates.
+///     - translation: The distance traveled by the pointer during the gesture.
+///
+/// - Returns:
+///     Should return `true` if the scroll view should adjust content offset to keep the pointer inside its visible rect.
 @available(macOS 10.15, iOS 13.0, *)
 public typealias DragContentAction = (_ state: ContinuousGestureState, _ location: CGPoint, _ translation: CGSize, _ proxy: AdvancedScrollViewProxy) -> Bool
 
