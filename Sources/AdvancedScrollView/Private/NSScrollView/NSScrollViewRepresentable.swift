@@ -93,7 +93,7 @@ struct NSScrollViewRepresentable<Content: View>: NSViewRepresentable {
             scrollView.onPanGesture { state, location, translation in
                 let translation = CGSize(width: translation.x, height: translation.y)
                 let proxy = AdvancedScrollViewProxy(delegate: proxyDelegate)
-                dragContentGestureInfo.action(state, location, translation, proxy)
+                return dragContentGestureInfo.action(state, location, translation, proxy)
             }
         }
 

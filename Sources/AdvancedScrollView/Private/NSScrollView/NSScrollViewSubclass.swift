@@ -89,9 +89,9 @@ final class NSScrollViewSubclass: NSScrollView, NSGestureRecognizerDelegate {
 
     private var clickGestureAction: ClickGestureAction?
 
-    // MARK: - Drag
+    // MARK: - Pan
 
-    typealias PanGestureAction = (_ state: ContinuousGestureState, _ location: CGPoint, _ translation: CGPoint) -> Void
+    typealias PanGestureAction = (_ state: ContinuousGestureState, _ location: CGPoint, _ translation: CGPoint) -> Bool
 
     func onPanGesture(perform action: PanGestureAction?) {
         if let action = action {
@@ -102,7 +102,69 @@ final class NSScrollViewSubclass: NSScrollView, NSGestureRecognizerDelegate {
     }
 
     @objc func handlePan(gestureRecognizer: NSPanGestureRecognizer) {
-        guard let panGestureAction = panGestureAction else {
+        if isScrollFollowsPan {
+            handlePanAndScrollFollows(gestureRecognizer: gestureRecognizer as! PanGestureRecognizer)
+        } else {
+            handleRegularPan(gestureRecognizer: gestureRecognizer)
+        }
+    }
+
+    private var isScrollFollowsPan: Bool = false
+
+    private func handlePanAndScrollFollows(gestureRecognizer: PanGestureRecognizer) {
+        guard let panGestureAction = panGestureAction, let documentView = documentView else {
+            return
+        }
+
+        guard let state = ContinuousGestureState(gestureRecognizer.state) else {
+            assertionFailure("Unexpected pan gesture recognizer state: \(gestureRecognizer.state)")
+            return
+        }
+
+        let visibleRect = documentVisibleRect
+        let location: NSPoint = gestureRecognizer.location(in: documentView)
+        var translation: NSPoint = gestureRecognizer.translation(in: documentView)
+        var scrollTranslation: NSPoint = .zero
+
+        // Top
+        if location.y < visibleRect.minY {
+            scrollTranslation.y = location.y - visibleRect.minY
+        }
+
+        // Left
+        if location.x < visibleRect.minX {
+            scrollTranslation.x = location.x - visibleRect.minX
+        }
+
+        // Bottom
+        if location.y > visibleRect.maxY {
+            scrollTranslation.y = location.y - visibleRect.maxY
+        }
+
+        // Right
+        if location.x > visibleRect.maxX {
+            scrollTranslation.x = location.x - visibleRect.maxX
+        }
+
+        if scrollTranslation != .zero {
+            let contentOffset = contentView.bounds.origin
+            var translatedContentOffset = contentOffset + scrollTranslation
+
+            // Make sure we're not going out of bounds
+            translatedContentOffset.x = min(max(0.0, translatedContentOffset.x), contentSize.width)
+            translatedContentOffset.y = min(max(0.0, translatedContentOffset.y), contentSize.height)
+
+            documentView.scroll(translatedContentOffset)
+
+            gestureRecognizer.translationOffset = gestureRecognizer.translationOffset + scrollTranslation
+            translation = gestureRecognizer.translation(in: documentView)
+        }
+
+        isScrollFollowsPan = panGestureAction(state, location, translation)
+    }
+
+    private func handleRegularPan(gestureRecognizer: NSPanGestureRecognizer) {
+        guard let panGestureAction = panGestureAction, let documentView = documentView else {
             return
         }
 
@@ -114,14 +176,12 @@ final class NSScrollViewSubclass: NSScrollView, NSGestureRecognizerDelegate {
         let location = gestureRecognizer.location(in: documentView)
         let translation = gestureRecognizer.translation(in: documentView)
 
-        RunLoop.main.perform {
-            panGestureAction(state, location, translation)
-        }
+        isScrollFollowsPan = panGestureAction(state, location, translation)
     }
 
     private func setupPanGesture(perform action: @escaping PanGestureAction) {
         let selector = #selector(handlePan(gestureRecognizer:))
-        let gestureRecognizer = NSPanGestureRecognizer(target: self, action: selector)
+        let gestureRecognizer = PanGestureRecognizer(target: self, action: selector)
         gestureRecognizer.numberOfTouchesRequired = 1
         gestureRecognizer.delegate = self
         contentView.addGestureRecognizer(gestureRecognizer)
@@ -176,5 +236,28 @@ fileprivate extension ContinuousGestureState {
         }
     }
 }
+
+fileprivate final class PanGestureRecognizer: NSPanGestureRecognizer {
+
+    var translationOffset: NSPoint = .zero
+
+    override func translation(in view: NSView?) -> NSPoint {
+        super.translation(in: view) + translationOffset
+    }
+
+    override func reset() {
+        super.reset()
+        translationOffset = .zero
+    }
+}
+
+
+fileprivate extension NSPoint {
+
+    static func + (left: NSPoint, right: NSPoint) -> NSPoint {
+        NSPoint(x: left.x + right.x, y: left.y + right.y)
+    }
+}
+
 
 #endif

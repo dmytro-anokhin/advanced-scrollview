@@ -12,7 +12,7 @@ import SwiftUI
 public typealias TapContentAction = (_ location: CGPoint, _ proxy: AdvancedScrollViewProxy) -> Void
 
 @available(macOS 10.15, iOS 13.0, *)
-public typealias DragContentAction = (_ state: ContinuousGestureState, _ location: CGPoint, _ translation: CGSize, _ proxy: AdvancedScrollViewProxy) -> Void
+public typealias DragContentAction = (_ state: ContinuousGestureState, _ location: CGPoint, _ translation: CGSize, _ proxy: AdvancedScrollViewProxy) -> Bool
 
 
 public enum ContinuousGestureState {
