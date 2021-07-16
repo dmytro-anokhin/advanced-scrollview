@@ -103,7 +103,7 @@ final class NSScrollViewSubclass: NSScrollView, NSGestureRecognizerDelegate {
 
     @objc func handlePan(gestureRecognizer: NSPanGestureRecognizer) {
         if isScrollFollowsPan {
-            handlePanAndScrollFollows(gestureRecognizer: gestureRecognizer as! PanGestureRecognizer)
+            handlePanAndScrollFollows(gestureRecognizer: gestureRecognizer as! NSPanWithTranslationOffsetGestureRecognizer)
         } else {
             handleRegularPan(gestureRecognizer: gestureRecognizer)
         }
@@ -111,7 +111,7 @@ final class NSScrollViewSubclass: NSScrollView, NSGestureRecognizerDelegate {
 
     private var isScrollFollowsPan: Bool = false
 
-    private func handlePanAndScrollFollows(gestureRecognizer: PanGestureRecognizer) {
+    private func handlePanAndScrollFollows(gestureRecognizer: NSPanWithTranslationOffsetGestureRecognizer) {
         guard let panGestureAction = panGestureAction, let documentView = documentView else {
             return
         }
@@ -181,7 +181,7 @@ final class NSScrollViewSubclass: NSScrollView, NSGestureRecognizerDelegate {
 
     private func setupPanGesture(perform action: @escaping PanGestureAction) {
         let selector = #selector(handlePan(gestureRecognizer:))
-        let gestureRecognizer = PanGestureRecognizer(target: self, action: selector)
+        let gestureRecognizer = NSPanWithTranslationOffsetGestureRecognizer(target: self, action: selector)
         gestureRecognizer.numberOfTouchesRequired = 1
         gestureRecognizer.delegate = self
         contentView.addGestureRecognizer(gestureRecognizer)
@@ -217,47 +217,5 @@ final class NSScrollViewSubclass: NSScrollView, NSGestureRecognizerDelegate {
 
     private var notificaitonsCancellables: Set<AnyCancellable> = []
 }
-
-
-fileprivate extension ContinuousGestureState {
-
-    init?(_ state: NSGestureRecognizer.State) {
-        switch state {
-            case .began:
-                self = .began
-            case .changed:
-                self = .changed
-            case .cancelled:
-                self = .cancelled
-            case .ended:
-                self = .ended
-            default:
-                return nil
-        }
-    }
-}
-
-fileprivate final class PanGestureRecognizer: NSPanGestureRecognizer {
-
-    var translationOffset: NSPoint = .zero
-
-    override func translation(in view: NSView?) -> NSPoint {
-        super.translation(in: view) + translationOffset
-    }
-
-    override func reset() {
-        super.reset()
-        translationOffset = .zero
-    }
-}
-
-
-fileprivate extension NSPoint {
-
-    static func + (left: NSPoint, right: NSPoint) -> NSPoint {
-        NSPoint(x: left.x + right.x, y: left.y + right.y)
-    }
-}
-
 
 #endif
