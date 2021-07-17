@@ -123,7 +123,7 @@ final class NSScrollViewSubclass: NSScrollView, NSGestureRecognizerDelegate {
 
         let visibleRect = documentVisibleRect
         let location: NSPoint = gestureRecognizer.location(in: documentView)
-        var translation: NSPoint = gestureRecognizer.translation(in: documentView)
+
         var scrollTranslation: NSPoint = .zero
 
         // Top
@@ -155,11 +155,10 @@ final class NSScrollViewSubclass: NSScrollView, NSGestureRecognizerDelegate {
             translatedContentOffset.y = min(max(0.0, translatedContentOffset.y), contentSize.height)
 
             documentView.scroll(translatedContentOffset)
-
             gestureRecognizer.translationOffset = gestureRecognizer.translationOffset + scrollTranslation
-            translation = gestureRecognizer.translation(in: documentView)
         }
 
+        let translation = gestureRecognizer.translation(in: documentView)
         isScrollFollowsPan = panGestureAction(state, location, translation)
     }
 
