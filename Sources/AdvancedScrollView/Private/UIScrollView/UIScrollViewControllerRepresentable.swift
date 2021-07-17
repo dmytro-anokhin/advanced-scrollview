@@ -22,13 +22,17 @@ struct UIScrollViewControllerRepresentable<Content: View>: UIViewControllerRepre
 
     let proxyDelegate: AdvancedScrollViewProxy.Delegate
 
+    let proxyGesturesDelegate: AdvancedScrollViewProxy.GesturesDelegate
+
     init(magnification: Magnification,
          isScrollIndicatorVisible: Bool,
          proxyDelegate: AdvancedScrollViewProxy.Delegate,
+         proxyGesturesDelegate: AdvancedScrollViewProxy.GesturesDelegate,
          @ViewBuilder content: () -> Content) {
         self.magnification = magnification
         self.isScrollIndicatorVisible = isScrollIndicatorVisible
         self.proxyDelegate = proxyDelegate
+        self.proxyGesturesDelegate = proxyGesturesDelegate
         self.content = content()
     }
 
@@ -83,6 +87,21 @@ struct UIScrollViewControllerRepresentable<Content: View>: UIViewControllerRepre
 
         proxyDelegate.getIsLiveMagnify = {
             uiViewController.scrollView.isZooming || uiViewController.scrollView.isZoomBouncing
+        }
+
+        if let tapContentGestureInfo = proxyGesturesDelegate.tapContentGestureInfo {
+            uiViewController.onTapGesture(count: tapContentGestureInfo.count) { location in
+                let proxy = AdvancedScrollViewProxy(delegate: proxyDelegate)
+                tapContentGestureInfo.action(location, proxy)
+            }
+        }
+
+        if let dragContentGestureInfo = proxyGesturesDelegate.dragContentGestureInfo {
+//            scrollView.onPanGesture { state, location, translation in
+//                let translation = CGSize(width: translation.x, height: translation.y)
+//                let proxy = AdvancedScrollViewProxy(delegate: proxyDelegate)
+//                return dragContentGestureInfo.action(state, location, translation, proxy)
+//            }
         }
 
         context.coordinator.hostingController.rootView = content

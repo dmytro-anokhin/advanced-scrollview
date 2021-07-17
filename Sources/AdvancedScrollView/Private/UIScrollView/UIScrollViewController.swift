@@ -123,6 +123,51 @@ final class UIScrollViewController: UIViewController, UIScrollViewDelegate {
         delegate?.scrollViewController(self, zoomScaleDidChange: zoomScale)
     }
 
+    // MARK: - Tap
+
+    typealias TapGestureAction = (_ location: CGPoint) -> Void
+
+    func onTapGesture(count: Int = 1, perform action: TapGestureAction?) {
+        if let action = action {
+            setupTapGesture(count: count, perform: action)
+        } else {
+            resetTapGesture()
+        }
+    }
+
+    @objc func handleTap(gestureRecognizer: UITapGestureRecognizer) {
+        guard let tapGestureAction = tapGestureAction else {
+            return
+        }
+
+        let location = gestureRecognizer.location(in: self.scrollView)
+        tapGestureAction(location)
+    }
+
+    private func setupTapGesture(count: Int = 1, perform action: @escaping TapGestureAction) {
+        let selector = #selector(handleTap(gestureRecognizer:))
+        let gestureRecognizer = UITapGestureRecognizer(target: self, action: selector)
+        gestureRecognizer.numberOfTapsRequired = count
+        gestureRecognizer.numberOfTouchesRequired = 1
+        scrollView.addGestureRecognizer(gestureRecognizer)
+
+        tapGestureRecognizer = gestureRecognizer
+        tapGestureAction = action
+    }
+
+    private func resetTapGesture() {
+        if let tapGestureRecognizer = tapGestureRecognizer {
+            scrollView.removeGestureRecognizer(tapGestureRecognizer)
+        }
+
+        tapGestureRecognizer = nil
+        tapGestureAction = nil
+    }
+
+    private weak var tapGestureRecognizer: UITapGestureRecognizer?
+
+    private var tapGestureAction: TapGestureAction?
+
     // MARK: - Private
 
     private var topConstraint: NSLayoutConstraint!
@@ -171,6 +216,4 @@ final class UIScrollViewController: UIViewController, UIScrollViewDelegate {
     }
 }
 
-
 #endif
-

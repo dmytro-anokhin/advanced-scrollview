@@ -40,6 +40,7 @@ public struct AdvancedScrollView<Content: View>: View {
         return UIScrollViewControllerRepresentable(magnification: magnification,
                             isScrollIndicatorVisible: isScrollIndicatorVisible,
                             proxyDelegate: proxyDelegate,
+                            proxyGesturesDelegate: gesturesDelegate,
                             content: {
                                 content(proxy)
                             })
