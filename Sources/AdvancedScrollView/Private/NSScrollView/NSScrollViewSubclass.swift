@@ -155,7 +155,9 @@ final class NSScrollViewSubclass: NSScrollView, NSGestureRecognizerDelegate {
             translatedContentOffset.y = min(max(0.0, translatedContentOffset.y), contentSize.height)
 
             documentView.scroll(translatedContentOffset)
-            gestureRecognizer.translationOffset = gestureRecognizer.translationOffset + scrollTranslation
+
+            let newVisibleRect = documentVisibleRect
+            gestureRecognizer.translationOffset = gestureRecognizer.translationOffset + newVisibleRect.origin - visibleRect.origin
         }
 
         let translation = gestureRecognizer.translation(in: documentView)
