@@ -45,36 +45,32 @@ struct UIScrollViewControllerRepresentable<Content: View>: UIViewControllerRepre
                                                           isScrollIndicatorVisible: isScrollIndicatorVisible)
         scrollViewController.delegate = context.coordinator
 
-        return scrollViewController
-    }
-
-    func updateUIViewController(_ uiViewController: UIScrollViewController, context: Context) {
         proxyDelegate.scrollTo = { rect, animated in
-            uiViewController.scrollTo(rect, animated: animated)
+            scrollViewController.scrollTo(rect, animated: animated)
         }
 
         proxyDelegate.getContentOffset = {
-            uiViewController.scrollView.contentOffset
+            scrollViewController.scrollView.contentOffset
         }
 
         proxyDelegate.setContentOffset = {
-            uiViewController.scrollView.contentOffset = $0
+            scrollViewController.scrollView.contentOffset = $0
         }
 
         proxyDelegate.getContentSize = {
-            uiViewController.scrollView.contentSize
+            scrollViewController.scrollView.contentSize
         }
 
         proxyDelegate.getContentInset = {
-            EdgeInsets(uiViewController.scrollView.contentInset)
+            EdgeInsets(scrollViewController.scrollView.contentInset)
         }
 
         proxyDelegate.setContentInset = {
-            uiViewController.scrollView.contentInset = UIEdgeInsets($0)
+            scrollViewController.scrollView.contentInset = UIEdgeInsets($0)
         }
 
         proxyDelegate.getVisibleRect = {
-            uiViewController.scrollView.bounds
+            scrollViewController.scrollView.bounds
         }
 
         proxyDelegate.getScrollerInsets = {
@@ -82,28 +78,32 @@ struct UIScrollViewControllerRepresentable<Content: View>: UIViewControllerRepre
         }
 
         proxyDelegate.getMagnification = {
-            uiViewController.scrollView.zoomScale
+            scrollViewController.scrollView.zoomScale
         }
 
         proxyDelegate.getIsLiveMagnify = {
-            uiViewController.scrollView.isZooming || uiViewController.scrollView.isZoomBouncing
+            scrollViewController.scrollView.isZooming || scrollViewController.scrollView.isZoomBouncing
         }
 
         if let tapContentGestureInfo = proxyGesturesDelegate.tapContentGestureInfo {
-            uiViewController.onTapGesture(count: tapContentGestureInfo.count) { location in
+            scrollViewController.onTapGesture(count: tapContentGestureInfo.count) { location in
                 let proxy = AdvancedScrollViewProxy(delegate: proxyDelegate)
                 tapContentGestureInfo.action(location, proxy)
             }
         }
 
         if let dragContentGestureInfo = proxyGesturesDelegate.dragContentGestureInfo {
-//            scrollView.onPanGesture { state, location, translation in
-//                let translation = CGSize(width: translation.x, height: translation.y)
-//                let proxy = AdvancedScrollViewProxy(delegate: proxyDelegate)
-//                return dragContentGestureInfo.action(state, location, translation, proxy)
-//            }
+            scrollViewController.onPanGesture { state, location, translation in
+                let translation = CGSize(width: translation.x, height: translation.y)
+                let proxy = AdvancedScrollViewProxy(delegate: proxyDelegate)
+                return dragContentGestureInfo.action(state, location, translation, proxy)
+            }
         }
 
+        return scrollViewController
+    }
+
+    func updateUIViewController(_ uiViewController: UIScrollViewController, context: Context) {
         context.coordinator.hostingController.rootView = content
     }
 
