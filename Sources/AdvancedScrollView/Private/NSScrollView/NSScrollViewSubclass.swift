@@ -206,6 +206,19 @@ final class NSScrollViewSubclass: NSScrollView, NSGestureRecognizerDelegate {
 
     // MARK: - NSGestureRecognizerDelegate
 
+    func gestureRecognizerShouldBegin(_ gestureRecognizer: NSGestureRecognizer) -> Bool {
+        guard gestureRecognizer == panGestureRecognizer,
+           let panGestureAction = panGestureAction,
+           let documentView = documentView else {
+            return true
+        }
+
+        let location = gestureRecognizer.location(in: documentView)
+        let translation = (gestureRecognizer as! NSPanGestureRecognizer).translation(in: documentView)
+
+        return panGestureAction(.possible, location, translation)
+    }
+
     func gestureRecognizer(_ gestureRecognizer: NSGestureRecognizer, shouldRequireFailureOf otherGestureRecognizer: NSGestureRecognizer) -> Bool {
         if gestureRecognizer == panGestureRecognizer, otherGestureRecognizer == clickGestureRecognizer {
             return true
