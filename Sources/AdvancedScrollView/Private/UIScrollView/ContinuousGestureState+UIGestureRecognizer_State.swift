@@ -1,17 +1,17 @@
 //
-//  ContinuousGestureState+NSGestureRecognizer_State.swift
+//  ContinuousGestureState+UIGestureRecognizer_State.swift
 //  
 //
-//  Created by Dmytro Anokhin on 16/07/2021.
+//  Created by Dmytro Anokhin on 17/07/2021.
 //
 
-#if os(macOS)
+#if !os(macOS)
 
-import AppKit
+import UIKit
 
 extension ContinuousGestureState {
 
-    init?(_ state: NSGestureRecognizer.State) {
+    init?(_ state: UIGestureRecognizer.State) {
         switch state {
             case .possible:
                 self = .possible

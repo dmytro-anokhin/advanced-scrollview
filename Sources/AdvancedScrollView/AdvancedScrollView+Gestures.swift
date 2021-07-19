@@ -23,12 +23,14 @@ public typealias TapContentAction = (_ location: CGPoint, _ proxy: AdvancedScrol
 ///     - translation: The distance traveled by the pointer during the gesture.
 ///
 /// - Returns:
-///     Should return `true` if the scroll view should adjust content offset to keep the pointer inside its visible rect.
+///     Should return `true` if content can be dragged.
 @available(macOS 10.15, iOS 13.0, *)
 public typealias DragContentAction = (_ state: ContinuousGestureState, _ location: CGPoint, _ translation: CGSize, _ proxy: AdvancedScrollViewProxy) -> Bool
 
 
 public enum ContinuousGestureState {
+
+    case possible
 
     case began
 
