@@ -80,6 +80,14 @@ struct NSScrollViewRepresentable<Content: View>: NSViewRepresentable {
             nsView.isLiveMagnify
         }
 
+        proxyDelegate.getIsAutoscrollEnabled = {
+            nsView.isAutoscrollEnabled
+        }
+
+        proxyDelegate.setIsAutoscrollEnabled = {
+            nsView.isAutoscrollEnabled = $0
+        }
+
         context.coordinator.hostingView.rootView = content
 
         let size = context.coordinator.hostingView.fittingSize
@@ -93,7 +101,7 @@ struct NSScrollViewRepresentable<Content: View>: NSViewRepresentable {
         var parent: NSScrollViewRepresentable
 
         init(parent: NSScrollViewRepresentable) {
-            self.hostingView = NSHostingView(rootView: parent.content)
+            self.hostingView = NSHostingViewSubclass(rootView: parent.content)
             self.parent = parent
         }
 
@@ -107,7 +115,7 @@ struct NSScrollViewRepresentable<Content: View>: NSViewRepresentable {
             scrollView.hasVerticalScroller = parent.hasScrollers
             scrollView.allowsMagnification = true
 
-            let clipView = NSClipView()
+            let clipView = NSClipViewSubclass()
             scrollView.contentView = clipView
             scrollView.documentView = hostingView
 

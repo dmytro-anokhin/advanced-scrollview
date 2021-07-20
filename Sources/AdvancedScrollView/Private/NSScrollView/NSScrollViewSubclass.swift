@@ -8,6 +8,7 @@
 #if os(macOS)
 
 import AppKit
+import SwiftUI
 import Combine
 
 
@@ -44,7 +45,44 @@ final class NSScrollViewSubclass: NSScrollView {
 
     private(set) var isLiveMagnify: Bool = false
 
+    var isAutoscrollEnabled: Bool {
+        get {
+            (documentView as? AutoscrollEnabledView)?.isAutoscrollEnabled ?? false
+        }
+
+        set {
+            guard var autoscrollEnabledView = documentView as? AutoscrollEnabledView else {
+                return
+            }
+
+            autoscrollEnabledView.isAutoscrollEnabled = newValue
+        }
+    }
+
     private var notificaitonsCancellables: Set<AnyCancellable> = []
+}
+
+@available(macOS 10.15, *)
+final class NSClipViewSubclass: NSClipView {
+}
+
+protocol AutoscrollEnabledView {
+
+    var isAutoscrollEnabled: Bool { get set }
+}
+
+@available(macOS 10.15, *)
+final class NSHostingViewSubclass<Content: View>: NSHostingView<Content>, AutoscrollEnabledView {
+
+    var isAutoscrollEnabled: Bool = false
+
+    override func mouseDragged(with event: NSEvent) {
+        super.mouseDragged(with: event)
+
+        if isAutoscrollEnabled {
+            autoscroll(with: event)
+        }
+    }
 }
 
 #endif

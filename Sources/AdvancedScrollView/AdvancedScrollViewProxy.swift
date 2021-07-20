@@ -61,4 +61,14 @@ public struct AdvancedScrollViewProxy {
     public var isLiveMagnify: Bool {
         delegate.getIsLiveMagnify()
     }
+
+    public var isAutoscrollEnabled: Bool {
+        get {
+            delegate.isAutoscrollEnabled
+        }
+
+        set {
+            delegate.isAutoscrollEnabled = newValue
+        }
+    }
 }

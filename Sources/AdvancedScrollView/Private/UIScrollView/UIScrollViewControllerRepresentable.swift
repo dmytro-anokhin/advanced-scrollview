@@ -85,6 +85,13 @@ struct UIScrollViewControllerRepresentable<Content: View>: UIViewControllerRepre
             uiViewController.scrollView.isZooming || uiViewController.scrollView.isZoomBouncing
         }
 
+        proxyDelegate.getIsAutoscrollEnabled = {
+            false
+        }
+
+        proxyDelegate.setIsAutoscrollEnabled = { _ in
+        }
+
         context.coordinator.hostingController.rootView = content
     }
 
