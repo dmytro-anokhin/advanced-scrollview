@@ -44,6 +44,8 @@ Benefit is that `onDragContentGesture` will manage state for you and even autosc
 
 If you're building iOS only app, not using magnification, or do not need to handle gestures at a specific location, using SwiftUI gestures with `AdvancedScrollView` should cover your case.
 
+*If you happen to know how to make `NSScrollView` translate coordinates correctly, please reach out.*
+
 ---
 
 Documentation is in development, names of properties and merthods are self-explanatory, and follow such of `UIScrollView`/`NSScrollView`.
