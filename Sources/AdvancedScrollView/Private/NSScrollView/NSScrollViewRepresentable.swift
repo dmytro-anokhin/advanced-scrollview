@@ -23,71 +23,92 @@ struct NSScrollViewRepresentable<Content: View>: NSViewRepresentable {
 
     let proxyDelegate: AdvancedScrollViewProxy.Delegate
 
+    let proxyGesturesDelegate: AdvancedScrollViewProxy.GesturesDelegate
+
     init(magnification: Magnification,
          hasScrollers: Bool,
          proxyDelegate: AdvancedScrollViewProxy.Delegate,
+         proxyGesturesDelegate: AdvancedScrollViewProxy.GesturesDelegate,
          @ViewBuilder content: () -> Content) {
         self.magnification = magnification
         self.hasScrollers = hasScrollers
         self.proxyDelegate = proxyDelegate
+        self.proxyGesturesDelegate = proxyGesturesDelegate
         self.content = content()
     }
 
     func makeNSView(context: Context) -> NSScrollViewSubclass {
-        context.coordinator.scrollView
-    }
+        let scrollView = context.coordinator.scrollView
 
-    func updateNSView(_ nsView: NSScrollViewSubclass, context: Context) {
         proxyDelegate.scrollTo = { rect, animated in
             let center = CGPoint(x: rect.midX, y: rect.midY)
-            nsView.scroll(center)
+            scrollView.scroll(center)
         }
 
         proxyDelegate.getContentOffset = {
-            nsView.contentView.bounds.origin
+            scrollView.contentView.bounds.origin
         }
 
         proxyDelegate.setContentOffset = { contentOffset in
-            let point = nsView.contentView.convert(contentOffset, to: nsView.documentView)
-            nsView.documentView?.scroll(point)
+            let point = scrollView.contentView.convert(contentOffset, to: scrollView.documentView)
+            scrollView.documentView?.scroll(point)
         }
 
         proxyDelegate.getContentSize = {
-            nsView.documentView?.bounds.size ?? .zero
+            scrollView.documentView?.bounds.size ?? .zero
         }
 
         proxyDelegate.getContentInset = {
-            EdgeInsets(nsView.contentInsets)
+            EdgeInsets(scrollView.contentInsets)
         }
 
         proxyDelegate.setContentInset = {
-            nsView.contentInsets = NSEdgeInsets($0)
+            scrollView.contentInsets = NSEdgeInsets($0)
         }
 
         proxyDelegate.getVisibleRect = {
-            nsView.documentVisibleRect
+            scrollView.documentVisibleRect
         }
 
         proxyDelegate.getScrollerInsets = {
-            EdgeInsets(nsView.scrollerInsets)
+            EdgeInsets(scrollView.scrollerInsets)
         }
 
         proxyDelegate.getMagnification = {
-            nsView.magnification
+            scrollView.magnification
         }
 
         proxyDelegate.getIsLiveMagnify = {
-            nsView.isLiveMagnify
+            scrollView.isLiveMagnify
         }
 
         proxyDelegate.getIsAutoscrollEnabled = {
-            nsView.isAutoscrollEnabled
+            scrollView.isAutoscrollEnabled
         }
 
         proxyDelegate.setIsAutoscrollEnabled = {
-            nsView.isAutoscrollEnabled = $0
+            scrollView.isAutoscrollEnabled = $0
         }
 
+        if let tapContentGestureInfo = proxyGesturesDelegate.tapContentGestureInfo {
+            scrollView.onClickGesture(count: tapContentGestureInfo.count) { location in
+                let proxy = AdvancedScrollViewProxy(delegate: proxyDelegate)
+                tapContentGestureInfo.action(location, proxy)
+            }
+        }
+
+        if let dragContentGestureInfo = proxyGesturesDelegate.dragContentGestureInfo {
+            scrollView.onPanGesture { state, location, translation in
+                let translation = CGSize(width: translation.x, height: translation.y)
+                let proxy = AdvancedScrollViewProxy(delegate: proxyDelegate)
+                return dragContentGestureInfo.action(state, location, translation, proxy)
+            }
+        }
+
+        return scrollView
+    }
+
+    func updateNSView(_ nsView: NSScrollViewSubclass, context: Context) {
         context.coordinator.hostingView.rootView = content
 
         let size = context.coordinator.hostingView.fittingSize

@@ -16,7 +16,7 @@ protocol UIScrollViewControllerDelegate: NSObject {
 }
 
 
-final class UIScrollViewController: UIViewController, UIScrollViewDelegate {
+final class UIScrollViewController: UIViewController, UIScrollViewDelegate, UIGestureRecognizerDelegate {
 
     let contentViewController: UIViewController
 
@@ -110,6 +110,10 @@ final class UIScrollViewController: UIViewController, UIScrollViewDelegate {
         view as! UIScrollView
     }
 
+    var contentView: UIView {
+        contentViewController.view
+    }
+
     // MARK: - UIScrollViewDelegate
 
     func viewForZooming(in scrollView: UIScrollView) -> UIView? {
@@ -121,6 +125,122 @@ final class UIScrollViewController: UIViewController, UIScrollViewDelegate {
         updateConstraintsToMatchZoomScale()
 
         delegate?.scrollViewController(self, zoomScaleDidChange: zoomScale)
+    }
+
+    // MARK: - Tap
+
+    typealias TapGestureAction = (_ location: CGPoint) -> Void
+
+    func onTapGesture(count: Int = 1, perform action: TapGestureAction?) {
+        if let action = action {
+            setupTapGesture(count: count, perform: action)
+        } else {
+            resetTapGesture()
+        }
+    }
+
+    @objc func handleTap(gestureRecognizer: UITapGestureRecognizer) {
+        guard let tapGestureAction = tapGestureAction else {
+            return
+        }
+
+        let location = gestureRecognizer.location(in: scrollView)
+        tapGestureAction(location)
+    }
+
+    private func setupTapGesture(count: Int = 1, perform action: @escaping TapGestureAction) {
+        let selector = #selector(handleTap(gestureRecognizer:))
+        let gestureRecognizer = UITapGestureRecognizer(target: self, action: selector)
+        gestureRecognizer.numberOfTapsRequired = count
+        gestureRecognizer.numberOfTouchesRequired = 1
+        scrollView.addGestureRecognizer(gestureRecognizer)
+
+        tapGestureRecognizer = gestureRecognizer
+        tapGestureAction = action
+    }
+
+    private func resetTapGesture() {
+        if let tapGestureRecognizer = tapGestureRecognizer {
+            scrollView.removeGestureRecognizer(tapGestureRecognizer)
+        }
+
+        tapGestureRecognizer = nil
+        tapGestureAction = nil
+    }
+
+    private weak var tapGestureRecognizer: UITapGestureRecognizer?
+
+    private var tapGestureAction: TapGestureAction?
+
+    // MARK: - Pan
+
+    typealias PanGestureAction = (_ state: ContinuousGestureState, _ location: CGPoint, _ translation: CGPoint) -> Bool
+
+    func onPanGesture(perform action: PanGestureAction?) {
+        if let action = action {
+            setupPanGesture(perform: action)
+        } else {
+            resetPanGesture()
+        }
+    }
+
+    @objc func handlePan(gestureRecognizer: UIPanGestureRecognizer) {
+        guard let panGestureAction = panGestureAction else {
+            return
+        }
+
+        guard let state = ContinuousGestureState(gestureRecognizer.state) else {
+            assertionFailure("Unexpected pan gesture recognizer state: \(gestureRecognizer.state)")
+            return
+        }
+
+        let location = gestureRecognizer.location(in: contentView)
+        let translation = gestureRecognizer.translation(in: contentView)
+
+        if !panGestureAction(state, location, translation) {
+            gestureRecognizer.isEnabled = false
+            gestureRecognizer.isEnabled = true
+        }
+    }
+
+    private func setupPanGesture(perform action: @escaping PanGestureAction) {
+        let selector = #selector(handlePan(gestureRecognizer:))
+        let gestureRecognizer = UIPanGestureRecognizer(target: self, action: selector)
+        gestureRecognizer.minimumNumberOfTouches = 1
+        gestureRecognizer.maximumNumberOfTouches = 1
+        gestureRecognizer.delegate = self
+        contentView.addGestureRecognizer(gestureRecognizer)
+
+        panGestureRecognizer = gestureRecognizer
+        panGestureAction = action
+
+        scrollView.panGestureRecognizer.require(toFail: gestureRecognizer)
+    }
+
+    private func resetPanGesture() {
+        if let panGestureRecognizer = panGestureRecognizer {
+            contentView.removeGestureRecognizer(panGestureRecognizer)
+        }
+
+        panGestureRecognizer = nil
+        panGestureAction = nil
+    }
+
+    private weak var panGestureRecognizer: UIPanGestureRecognizer?
+
+    private var panGestureAction: PanGestureAction?
+
+    // MARK: - UIGestureRecognizerDelegate
+
+    func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+        if gestureRecognizer == panGestureRecognizer, let panGestureAction = panGestureAction {
+            let location = gestureRecognizer.location(in: contentView)
+            let translation = panGestureRecognizer!.translation(in: contentView)
+
+            return panGestureAction(.possible, location, translation)
+        }
+
+        return true
     }
 
     // MARK: - Private
@@ -171,6 +291,4 @@ final class UIScrollViewController: UIViewController, UIScrollViewDelegate {
     }
 }
 
-
 #endif
-
