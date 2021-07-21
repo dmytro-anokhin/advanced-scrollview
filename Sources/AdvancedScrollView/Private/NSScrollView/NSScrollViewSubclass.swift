@@ -45,19 +45,7 @@ final class NSScrollViewSubclass: NSScrollView, NSGestureRecognizerDelegate {
 
     private(set) var isLiveMagnify: Bool = false
 
-    var isAutoscrollEnabled: Bool {
-        get {
-            (documentView as? AutoscrollEnabledView)?.isAutoscrollEnabled ?? false
-        }
-
-        set {
-            guard var autoscrollEnabledView = documentView as? AutoscrollEnabledView else {
-                return
-            }
-
-            autoscrollEnabledView.isAutoscrollEnabled = newValue
-        }
-    }
+    var isAutoscrollEnabled: Bool = true
 
     // MARK: - Click
 
@@ -126,15 +114,16 @@ final class NSScrollViewSubclass: NSScrollView, NSGestureRecognizerDelegate {
             return
         }
 
-        let visibleRect = documentVisibleRect
+        if isAutoscrollEnabled {
+            let visibleRect = documentVisibleRect
 
-        if gestureRecognizer.isContentSelected,
-           state == .changed,
-           let event = gestureRecognizer.mouseDraggedEvent {
-            documentView.autoscroll(with: event)
-            reflectScrolledClipView(contentView)
+            if gestureRecognizer.isContentSelected,
+               state == .changed,
+               let event = gestureRecognizer.mouseDraggedEvent {
 
-            gestureRecognizer.translationOffset = gestureRecognizer.translationOffset + documentVisibleRect.origin - visibleRect.origin
+                documentView.autoscroll(with: event)
+                gestureRecognizer.translationOffset = gestureRecognizer.translationOffset + documentVisibleRect.origin - visibleRect.origin
+            }
         }
 
         let location = gestureRecognizer.location(in: documentView)
@@ -199,23 +188,8 @@ final class NSScrollViewSubclass: NSScrollView, NSGestureRecognizerDelegate {
 final class NSClipViewSubclass: NSClipView {
 }
 
-protocol AutoscrollEnabledView {
-
-    var isAutoscrollEnabled: Bool { get set }
-}
-
 @available(macOS 10.15, *)
-final class NSHostingViewSubclass<Content: View>: NSHostingView<Content>, AutoscrollEnabledView {
-
-    var isAutoscrollEnabled: Bool = false
-
-    override func mouseDragged(with event: NSEvent) {
-        super.mouseDragged(with: event)
-
-        if isAutoscrollEnabled {
-            autoscroll(with: event)
-        }
-    }
+final class NSHostingViewSubclass<Content: View>: NSHostingView<Content> {
 }
 
 #endif
