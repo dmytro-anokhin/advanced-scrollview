@@ -21,15 +21,42 @@ struct ScrollableImage: View {
 }
 ```
 
-`AdvancedScrollView` takes `ViewBuilder` closure and will automatically scroll content it returns. Additionally you can configure magnification behaviour using `Magnification` struct. `AdvancedScrollViewProxy` object provides access to common properties and methods of underlying `UIScrollView`/`NSScrollView`.
+## Magnification
+
+You can configure magnification behaviour using `Magnification` struct.
 
 ```swift
-AdvancedScrollView(magnification: Magnification(range: 1.0...4.0, initialValue: 1.0, isRelative: false)) { proxy in
+let magnification = Magnification(range: 1.0...4.0, initialValue: 1.0, isRelative: true)
+
+AdvancedScrollView(magnification: magnification) { _ in
     image
-        .onTapGesture {
-            print(proxy.visibleRect)
-        }
 }
+```
+
+`range` and `initialValue` allows to configure magnification range and initial magnification respectfully. `isRelative` defines if magnification must be calculated relative to the view's frame. I.e. content magnified to fit in the view.
+
+## Proxy
+
+Similarly to `ScrollView` and `ScrollViewReader` combination, `AdvancedScrollView` takes `ViewBuilder` closure with a single `AdvancedScrollViewProxy` argument that provides access to common properties and methods of the underlying scroll view.
+
+The names are self-explanatory and while this documentation is in development please refer to `UIScrollView`/`NSScrollView` APIs.
+
+```
+func scrollTo(_ rect: CGRect, animated: Bool)
+
+var contentOffset: CGPoint { get set }
+
+var contentSize: CGSize { get }
+
+var contentInset: EdgeInsets { get set }
+
+var visibleRect: CGRect { get }
+
+var scrollerInsets: EdgeInsets { get }
+
+var magnification: CGFloat { get }
+
+var isLiveMagnify: Bool { get }
 ```
 
 ## Events and Gestures
@@ -46,6 +73,3 @@ If you're building iOS only app, not using magnification, or do not need to hand
 
 *If you happen to know how to make `NSScrollView` translate coordinates correctly, please reach out.*
 
----
-
-Documentation is in development, names of properties and merthods are self-explanatory, and follow such of `UIScrollView`/`NSScrollView`.
