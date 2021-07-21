@@ -84,6 +84,13 @@ struct UIScrollViewControllerRepresentable<Content: View>: UIViewControllerRepre
         proxyDelegate.getIsLiveMagnify = {
             scrollViewController.scrollView.isZooming || scrollViewController.scrollView.isZoomBouncing
         }
+        
+        proxyDelegate.getIsAutoscrollEnabled = {
+            false
+        }
+
+        proxyDelegate.setIsAutoscrollEnabled = { _ in
+        }
 
         if let tapContentGestureInfo = proxyGesturesDelegate.tapContentGestureInfo {
             scrollViewController.onTapGesture(count: tapContentGestureInfo.count) { location in

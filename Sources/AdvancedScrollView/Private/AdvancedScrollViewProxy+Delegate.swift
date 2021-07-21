@@ -38,6 +38,9 @@ extension AdvancedScrollViewProxy {
 
         var getIsLiveMagnify: (() -> Bool)!
 
+        var getIsAutoscrollEnabled: (() -> Bool)!
+        var setIsAutoscrollEnabled: ((_ isAutoscrollEnabled: Bool) -> Void)!
+
         // Methods to call
 
         func performScrollTo(_ rect: CGRect, animated: Bool) {
@@ -82,6 +85,16 @@ extension AdvancedScrollViewProxy {
 
         var isLiveMagnify: Bool {
             getIsLiveMagnify()
+        }
+
+        var isAutoscrollEnabled: Bool {
+            get {
+                getIsAutoscrollEnabled()
+            }
+
+            set {
+                setIsAutoscrollEnabled(newValue)
+            }
         }
     }
 }

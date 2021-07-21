@@ -82,6 +82,14 @@ struct NSScrollViewRepresentable<Content: View>: NSViewRepresentable {
             scrollView.isLiveMagnify
         }
 
+        proxyDelegate.getIsAutoscrollEnabled = {
+            scrollView.isAutoscrollEnabled
+        }
+
+        proxyDelegate.setIsAutoscrollEnabled = {
+            scrollView.isAutoscrollEnabled = $0
+        }
+
         if let tapContentGestureInfo = proxyGesturesDelegate.tapContentGestureInfo {
             scrollView.onClickGesture(count: tapContentGestureInfo.count) { location in
                 let proxy = AdvancedScrollViewProxy(delegate: proxyDelegate)
@@ -114,7 +122,7 @@ struct NSScrollViewRepresentable<Content: View>: NSViewRepresentable {
         var parent: NSScrollViewRepresentable
 
         init(parent: NSScrollViewRepresentable) {
-            self.hostingView = NSHostingView(rootView: parent.content)
+            self.hostingView = NSHostingViewSubclass(rootView: parent.content)
             self.parent = parent
         }
 
@@ -128,7 +136,7 @@ struct NSScrollViewRepresentable<Content: View>: NSViewRepresentable {
             scrollView.hasVerticalScroller = parent.hasScrollers
             scrollView.allowsMagnification = true
 
-            let clipView = NSClipView()
+            let clipView = NSClipViewSubclass()
             scrollView.contentView = clipView
             scrollView.documentView = hostingView
 
