@@ -94,7 +94,7 @@ final class NSScrollViewSubclass: NSScrollView, NSGestureRecognizerDelegate {
 
     // MARK: - Pan
 
-    typealias PanGestureAction = (_ state: ContinuousGestureState, _ location: CGPoint, _ translation: CGPoint) -> Bool
+    typealias PanGestureAction = (_ phase: ContinuousGesturePhase, _ location: CGPoint, _ translation: CGPoint) -> Bool
 
     func onPanGesture(perform action: PanGestureAction?) {
         if let action = action {
@@ -109,7 +109,7 @@ final class NSScrollViewSubclass: NSScrollView, NSGestureRecognizerDelegate {
             return
         }
 
-        guard let state = ContinuousGestureState(gestureRecognizer.state) else {
+        guard let phase = ContinuousGesturePhase(gestureRecognizer.state) else {
             assertionFailure("Unexpected pan gesture recognizer state: \(gestureRecognizer.state)")
             return
         }
@@ -118,7 +118,7 @@ final class NSScrollViewSubclass: NSScrollView, NSGestureRecognizerDelegate {
             let visibleRect = documentVisibleRect
 
             if gestureRecognizer.isContentSelected,
-               state == .changed,
+               phase == .updating,
                let event = gestureRecognizer.mouseDraggedEvent {
 
                 documentView.autoscroll(with: event)
@@ -129,7 +129,7 @@ final class NSScrollViewSubclass: NSScrollView, NSGestureRecognizerDelegate {
         let location = gestureRecognizer.location(in: documentView)
         let translation = gestureRecognizer.translation(in: documentView)
 
-        gestureRecognizer.isContentSelected = panGestureAction(state, location, translation)
+        gestureRecognizer.isContentSelected = panGestureAction(phase, location, translation)
     }
 
     private func setupPanGesture(perform action: @escaping PanGestureAction) {

@@ -18,23 +18,26 @@ public typealias TapContentAction = (_ location: CGPoint, _ proxy: AdvancedScrol
 /// Action for drag (pan) gesture
 ///
 /// - Parameters:
-///     - state: The state of the gesture. See `ContinuousGestureState` for reference.
+///     - phase: The phase of the gesture. See `ContinuousGesturePhase` for reference.
 ///     - location: Location in the content view coordinates.
 ///     - translation: The distance traveled by the pointer during the gesture.
 ///
 /// - Returns:
 ///     Should return `true` if content can be dragged.
 @available(macOS 10.15, iOS 13.0, *)
-public typealias DragContentAction = (_ state: ContinuousGestureState, _ location: CGPoint, _ translation: CGSize, _ proxy: AdvancedScrollViewProxy) -> Bool
+public typealias DragContentAction = (_ phase: ContinuousGesturePhase, _ location: CGPoint, _ translation: CGSize, _ proxy: AdvancedScrollViewProxy) -> Bool
 
 
-public enum ContinuousGestureState {
+public enum ContinuousGesturePhase {
 
+    /// Received touch events, but the gesture has not yet been recognized.
+    ///
+    /// Related action handler can return `false` to cancel gesture recognition.
     case possible
 
     case began
 
-    case changed
+    case updating
 
     case cancelled
 

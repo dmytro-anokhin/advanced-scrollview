@@ -1,5 +1,5 @@
 //
-//  ContinuousGestureState+NSGestureRecognizer_State.swift
+//  ContinuousGesturePhase+NSGestureRecognizer_State.swift
 //  
 //
 //  Created by Dmytro Anokhin on 16/07/2021.
@@ -9,7 +9,7 @@
 
 import AppKit
 
-extension ContinuousGestureState {
+extension ContinuousGesturePhase {
 
     init?(_ state: NSGestureRecognizer.State) {
         switch state {
@@ -18,8 +18,8 @@ extension ContinuousGestureState {
             case .began:
                 self = .began
             case .changed:
-                self = .changed
-            case .cancelled:
+                self = .updating
+            case .cancelled, .failed:
                 self = .cancelled
             case .ended:
                 self = .ended

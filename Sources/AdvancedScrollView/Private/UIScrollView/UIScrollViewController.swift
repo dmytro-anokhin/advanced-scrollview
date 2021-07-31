@@ -174,7 +174,7 @@ final class UIScrollViewController: UIViewController, UIScrollViewDelegate, UIGe
 
     // MARK: - Pan
 
-    typealias PanGestureAction = (_ state: ContinuousGestureState, _ location: CGPoint, _ translation: CGPoint) -> Bool
+    typealias PanGestureAction = (_ phase: ContinuousGesturePhase, _ location: CGPoint, _ translation: CGPoint) -> Bool
 
     func onPanGesture(perform action: PanGestureAction?) {
         if let action = action {
@@ -189,7 +189,7 @@ final class UIScrollViewController: UIViewController, UIScrollViewDelegate, UIGe
             return
         }
 
-        guard let state = ContinuousGestureState(gestureRecognizer.state) else {
+        guard let phase = ContinuousGesturePhase(gestureRecognizer.state) else {
             assertionFailure("Unexpected pan gesture recognizer state: \(gestureRecognizer.state)")
             return
         }
@@ -197,7 +197,7 @@ final class UIScrollViewController: UIViewController, UIScrollViewDelegate, UIGe
         let location = gestureRecognizer.location(in: contentView)
         let translation = gestureRecognizer.translation(in: contentView)
 
-        if !panGestureAction(state, location, translation) {
+        if !panGestureAction(phase, location, translation) {
             gestureRecognizer.isEnabled = false
             gestureRecognizer.isEnabled = true
         }
