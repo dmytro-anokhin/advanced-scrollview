@@ -118,7 +118,7 @@ final class NSScrollViewSubclass: NSScrollView, NSGestureRecognizerDelegate {
             let visibleRect = documentVisibleRect
 
             if gestureRecognizer.isContentSelected,
-               phase == .updating,
+               phase == .changed,
                let event = gestureRecognizer.mouseDraggedEvent {
 
                 documentView.autoscroll(with: event)

@@ -37,7 +37,7 @@ public enum ContinuousGesturePhase {
 
     case began
 
-    case updating
+    case changed
 
     case cancelled
 

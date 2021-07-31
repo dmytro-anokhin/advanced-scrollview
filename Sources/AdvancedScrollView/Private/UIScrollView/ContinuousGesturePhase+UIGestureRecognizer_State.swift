@@ -18,7 +18,7 @@ extension ContinuousGesturePhase {
             case .began:
                 self = .began
             case .changed:
-                self = .updating
+                self = .changed
             case .cancelled, .failed:
                 self = .cancelled
             case .ended:
