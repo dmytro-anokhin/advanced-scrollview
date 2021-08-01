@@ -20,34 +20,43 @@ public struct AdvancedScrollView<Content: View>: View {
     public init(magnification: Magnification = Magnification(range: 1.0...4.0, initialValue: 1.0, isRelative: true),
                 isScrollIndicatorVisible: Bool = true,
                 @ViewBuilder content: @escaping (_ proxy: AdvancedScrollViewProxy) -> Content) {
+
+        self.init(magnification: magnification,
+                  isScrollIndicatorVisible: isScrollIndicatorVisible,
+                  tapContentGestureInfo: nil,
+                  dragContentGestureInfo: nil,
+                  content: content)
+    }
+
+    init(magnification: Magnification = Magnification(range: 1.0...4.0, initialValue: 1.0, isRelative: true),
+         isScrollIndicatorVisible: Bool = true,
+         tapContentGestureInfo: TapContentGestureInfo?,
+         dragContentGestureInfo: DragContentGestureInfo?,
+         @ViewBuilder content: @escaping (_ proxy: AdvancedScrollViewProxy) -> Content) {
         self.magnification = magnification
         self.isScrollIndicatorVisible = isScrollIndicatorVisible
+        self.tapContentGestureInfo = tapContentGestureInfo
+        self.dragContentGestureInfo = dragContentGestureInfo
         self.content = content
     }
 
     public var body: some View {
-        let proxy = AdvancedScrollViewProxy(delegate: proxyDelegate)
-
         #if os(macOS)
         return NSScrollViewRepresentable(magnification: magnification,
                             hasScrollers: isScrollIndicatorVisible,
-                            proxyDelegate: proxyDelegate,
-                            proxyGesturesDelegate: gesturesDelegate,
-                            content: {
-                                content(proxy)
-                            })
+                            tapContentGestureInfo: tapContentGestureInfo,
+                            dragContentGestureInfo: dragContentGestureInfo,
+                            content: content)
         #else
         return UIScrollViewControllerRepresentable(magnification: magnification,
                             isScrollIndicatorVisible: isScrollIndicatorVisible,
-                            proxyDelegate: proxyDelegate,
-                            proxyGesturesDelegate: gesturesDelegate,
-                            content: {
-                                content(proxy)
-                            })
+                            tapContentGestureInfo: tapContentGestureInfo,
+                            dragContentGestureInfo: dragContentGestureInfo,
+                            content: content)
         #endif
     }
 
-    let gesturesDelegate = AdvancedScrollViewProxy.GesturesDelegate.shared
+    var tapContentGestureInfo: TapContentGestureInfo?
 
-    private let proxyDelegate = AdvancedScrollViewProxy.Delegate.shared
+    var dragContentGestureInfo: DragContentGestureInfo?
 }

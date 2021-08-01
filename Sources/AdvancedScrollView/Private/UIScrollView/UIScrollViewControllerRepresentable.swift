@@ -18,122 +18,130 @@ struct UIScrollViewControllerRepresentable<Content: View>: UIViewControllerRepre
 
     let isScrollIndicatorVisible: Bool
 
-    let content: Content
+    let tapContentGestureInfo: TapContentGestureInfo?
 
-    let proxyDelegate: AdvancedScrollViewProxy.Delegate
+    let dragContentGestureInfo: DragContentGestureInfo?
 
-    let proxyGesturesDelegate: AdvancedScrollViewProxy.GesturesDelegate
+    let content: (_ proxy: AdvancedScrollViewProxy) -> Content
 
     init(magnification: Magnification,
          isScrollIndicatorVisible: Bool,
-         proxyDelegate: AdvancedScrollViewProxy.Delegate,
-         proxyGesturesDelegate: AdvancedScrollViewProxy.GesturesDelegate,
-         @ViewBuilder content: () -> Content) {
+         tapContentGestureInfo: TapContentGestureInfo?,
+         dragContentGestureInfo: DragContentGestureInfo?,
+         @ViewBuilder content: @escaping (_ proxy: AdvancedScrollViewProxy) -> Content) {
         self.magnification = magnification
         self.isScrollIndicatorVisible = isScrollIndicatorVisible
-        self.proxyDelegate = proxyDelegate
-        self.proxyGesturesDelegate = proxyGesturesDelegate
-        self.content = content()
+        self.tapContentGestureInfo = tapContentGestureInfo
+        self.dragContentGestureInfo = dragContentGestureInfo
+        self.content = content
     }
 
     func makeUIViewController(context: Context) -> UIScrollViewController {
-        let scrollViewController = UIScrollViewController(contentViewController: context.coordinator.hostingController,
-                                                          minimumZoomScale: magnification.range.lowerBound,
-                                                          maximumZoomScale: magnification.range.upperBound,
-                                                          zoomScale: magnification.initialValue,
-                                                          isZoomRelative: magnification.isRelative,
-                                                          isScrollIndicatorVisible: isScrollIndicatorVisible)
-        scrollViewController.delegate = context.coordinator
-
-        proxyDelegate.scrollTo = { rect, animated in
-            scrollViewController.scrollTo(rect, animated: animated)
-        }
-
-        proxyDelegate.getContentOffset = {
-            scrollViewController.scrollView.contentOffset
-        }
-
-        proxyDelegate.setContentOffset = {
-            scrollViewController.scrollView.contentOffset = $0
-        }
-
-        proxyDelegate.getContentSize = {
-            scrollViewController.scrollView.contentSize
-        }
-
-        proxyDelegate.getContentInset = {
-            EdgeInsets(scrollViewController.scrollView.contentInset)
-        }
-
-        proxyDelegate.setContentInset = {
-            scrollViewController.scrollView.contentInset = UIEdgeInsets($0)
-        }
-
-        proxyDelegate.getVisibleRect = {
-            scrollViewController.scrollView.bounds
-        }
-
-        proxyDelegate.getScrollerInsets = {
-            EdgeInsets()
-        }
-
-        proxyDelegate.getMagnification = {
-            scrollViewController.scrollView.zoomScale
-        }
-
-        proxyDelegate.getIsLiveMagnify = {
-            scrollViewController.scrollView.isZooming || scrollViewController.scrollView.isZoomBouncing
-        }
-        
-        proxyDelegate.getIsAutoscrollEnabled = {
-            false
-        }
-
-        proxyDelegate.setIsAutoscrollEnabled = { _ in
-        }
-
-        if let tapContentGestureInfo = proxyGesturesDelegate.tapContentGestureInfo {
-            scrollViewController.onTapGesture(count: tapContentGestureInfo.count) { location in
-                let proxy = AdvancedScrollViewProxy(delegate: proxyDelegate)
-                tapContentGestureInfo.action(location, proxy)
-            }
-        }
-
-        if let dragContentGestureInfo = proxyGesturesDelegate.dragContentGestureInfo {
-            scrollViewController.onPanGesture { state, location, translation in
-                let translation = CGSize(width: translation.x, height: translation.y)
-                let proxy = AdvancedScrollViewProxy(delegate: proxyDelegate)
-                return dragContentGestureInfo.action(state, location, translation, proxy)
-            }
-        }
-
-        return scrollViewController
+        UIScrollViewController(minimumZoomScale: magnification.range.lowerBound,
+                               maximumZoomScale: magnification.range.upperBound,
+                               zoomScale: magnification.initialValue,
+                               isZoomRelative: magnification.isRelative,
+                               isScrollIndicatorVisible: isScrollIndicatorVisible)
     }
 
     func updateUIViewController(_ uiViewController: UIScrollViewController, context: Context) {
-        context.coordinator.hostingController.rootView = content
+        let proxy = makeProxy(scrollViewController: uiViewController)
+        let contentView = content(proxy)
+
+        if uiViewController.contentViewController == nil {
+            let hostingController = UIHostingController(rootView: contentView)
+            uiViewController.contentViewController = hostingController
+
+            if let tapContentGestureInfo = tapContentGestureInfo {
+                uiViewController.onTapGesture(count: tapContentGestureInfo.count) { location in
+                    tapContentGestureInfo.action(location, proxy)
+                }
+            }
+
+            if let dragContentGestureInfo = dragContentGestureInfo {
+                uiViewController.onPanGesture { state, location, translation in
+                    let translation = CGSize(width: translation.x, height: translation.y)
+                    return dragContentGestureInfo.action(state, location, translation, proxy)
+                }
+            }
+        } else {
+            (uiViewController.contentViewController as! UIHostingController<Content>).rootView = contentView
+        }
     }
 
-    class Coordinator: NSObject, UIScrollViewControllerDelegate {
+    // MARK - Private
+    private func makeProxy(scrollViewController: UIScrollViewController) -> AdvancedScrollViewProxy {
+        var proxy = AdvancedScrollViewProxy()
 
-        let hostingController: UIHostingController<Content>
-
-        var parent: UIScrollViewControllerRepresentable
-
-        init(parent: UIScrollViewControllerRepresentable) {
-            self.hostingController = UIHostingController(rootView: parent.content)
-            self.parent = parent
+        proxy.performScrollTo = { rect, animated in
+            scrollViewController.scrollTo(rect, animated: animated)
         }
 
-        func scrollViewController(_ scrollViewController: UIScrollViewController, zoomScaleDidChange zoomScale: CGFloat) {
-            // TODO: Pass value up the hierarchy using binding
+        proxy.getContentOffset = {
+            scrollViewController.scrollView.contentOffset
         }
+
+        proxy.setContentOffset = {
+            scrollViewController.scrollView.contentOffset = $0
+        }
+
+        proxy.getContentSize = {
+            scrollViewController.scrollView.contentSize
+        }
+
+        proxy.getContentInset = {
+            EdgeInsets(scrollViewController.scrollView.contentInset)
+        }
+
+        proxy.setContentInset = {
+            scrollViewController.scrollView.contentInset = UIEdgeInsets($0)
+        }
+
+        proxy.getVisibleRect = {
+            scrollViewController.scrollView.bounds
+        }
+
+        proxy.getScrollerInsets = {
+            EdgeInsets()
+        }
+
+        proxy.getMagnification = {
+            scrollViewController.scrollView.zoomScale
+        }
+
+        proxy.getIsLiveMagnify = {
+            scrollViewController.scrollView.isZooming || scrollViewController.scrollView.isZoomBouncing
+        }
+
+        proxy.getIsAutoscrollEnabled = {
+            false
+        }
+
+        proxy.setIsAutoscrollEnabled = { _ in
+        }
+
+        return proxy
     }
 
-    func makeCoordinator() -> Coordinator {
-        Coordinator(parent: self)
-    }
+//    class Coordinator: NSObject, UIScrollViewControllerDelegate {
+//
+//        let hostingController: UIHostingController<Content>
+//
+//        var parent: UIScrollViewControllerRepresentable
+//
+//        init(parent: UIScrollViewControllerRepresentable) {
+//            self.hostingController = UIHostingController(rootView: parent.content)
+//            self.parent = parent
+//        }
+//
+//        func scrollViewController(_ scrollViewController: UIScrollViewController, zoomScaleDidChange zoomScale: CGFloat) {
+//            // TODO: Pass value up the hierarchy using binding
+//        }
+//    }
+//
+//    func makeCoordinator() -> Coordinator {
+//        Coordinator(parent: self)
+//    }
 }
-
 
 #endif

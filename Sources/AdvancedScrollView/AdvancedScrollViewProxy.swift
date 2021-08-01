@@ -11,64 +11,84 @@ import SwiftUI
 @available(macOS 10.15, iOS 13.0, *)
 public struct AdvancedScrollViewProxy {
 
-    init(delegate: Delegate) {
-        self.delegate = delegate
+    init() {
     }
 
-    var delegate: Delegate
-
     public func scrollTo(_ rect: CGRect, animated: Bool) {
-        delegate.performScrollTo(rect, animated: animated)
+        performScrollTo(rect, animated)
     }
 
     public var contentOffset: CGPoint {
         get {
-            delegate.contentOffset
+            getContentOffset()
         }
 
         set {
-            delegate.contentOffset = newValue
+            setContentOffset(newValue)
         }
     }
 
     /// Content size is read-only on macOS so it is here
     public var contentSize: CGSize {
-        delegate.contentSize
+        getContentSize()
     }
 
     public var contentInset: EdgeInsets {
         get {
-            delegate.contentInset
+            getContentInset()
         }
 
         set {
-            delegate.contentInset = newValue
+            setContentInset(newValue)
         }
     }
 
     public var visibleRect: CGRect {
-        delegate.visibleRect
+        getVisibleRect()
     }
 
     public var scrollerInsets: EdgeInsets {
-        delegate.scrollerInsets
+        getScrollerInsets()
     }
 
     public var magnification: CGFloat {
-        delegate.magnification
+        getMagnification()
     }
 
     public var isLiveMagnify: Bool {
-        delegate.getIsLiveMagnify()
+        getIsLiveMagnify()
     }
 
     public var isAutoscrollEnabled: Bool {
         get {
-            delegate.isAutoscrollEnabled
+            getIsAutoscrollEnabled()
         }
 
         set {
-            delegate.isAutoscrollEnabled = newValue
+            setIsAutoscrollEnabled(newValue)
         }
     }
+
+    // MARK: - Internal
+
+    var performScrollTo: ((_ rect: CGRect, _ animated: Bool) -> Void)!
+
+    var getContentOffset: (() -> CGPoint)!
+    var setContentOffset: ((_ contentOffset: CGPoint) -> Void)!
+
+    var getContentSize: (() -> CGSize)!
+
+    var getContentInset: (() -> EdgeInsets)!
+    var setContentInset: ((_ contentInset: EdgeInsets) -> Void)!
+
+    var getVisibleRect: (() -> CGRect)!
+
+    var getScrollerInsets: (() -> EdgeInsets)!
+
+    var getMagnification: (() -> CGFloat)!
+
+    var getIsLiveMagnify: (() -> Bool)!
+
+    var getIsAutoscrollEnabled: (() -> Bool)!
+    var setIsAutoscrollEnabled: ((_ isAutoscrollEnabled: Bool) -> Void)!
 }

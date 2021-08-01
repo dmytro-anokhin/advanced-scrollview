@@ -18,7 +18,19 @@ protocol UIScrollViewControllerDelegate: NSObject {
 
 final class UIScrollViewController: UIViewController, UIScrollViewDelegate, UIGestureRecognizerDelegate {
 
-    let contentViewController: UIViewController
+    var contentViewController: UIViewController! {
+        willSet {
+            assert(contentViewController == nil, "This implementation expects content view controller to be set only once")
+        }
+
+        didSet {
+            guard isViewLoaded else {
+                return
+            }
+
+            attachContentViewController()
+        }
+    }
 
     let minimumZoomScale: CGFloat
 
@@ -30,13 +42,11 @@ final class UIScrollViewController: UIViewController, UIScrollViewDelegate, UIGe
 
     let isScrollIndicatorVisible: Bool
 
-    init(contentViewController: UIViewController,
-         minimumZoomScale: CGFloat,
+    init(minimumZoomScale: CGFloat,
          maximumZoomScale: CGFloat,
          zoomScale: CGFloat,
          isZoomRelative: Bool,
          isScrollIndicatorVisible: Bool) {
-        self.contentViewController = contentViewController
         self.minimumZoomScale = minimumZoomScale
         self.maximumZoomScale = maximumZoomScale
         self.zoomScale = zoomScale
@@ -59,27 +69,12 @@ final class UIScrollViewController: UIViewController, UIScrollViewDelegate, UIGe
         scrollView.showsHorizontalScrollIndicator = isScrollIndicatorVisible
         scrollView.showsVerticalScrollIndicator = isScrollIndicatorVisible
 
-        addChild(contentViewController)
-        contentViewController.view.sizeToFit()
-
-        scrollView.addSubview(contentViewController.view)
-
-        contentViewController.view.translatesAutoresizingMaskIntoConstraints = false
-
-        topConstraint = contentViewController.view.topAnchor.constraint(equalTo: scrollView.topAnchor)
-        leadingConstraint = contentViewController.view.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor)
-        bottomConstraint = contentViewController.view.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor)
-        trailingConstraint = contentViewController.view.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor)
-
-        NSLayoutConstraint.activate([ topConstraint, leadingConstraint, bottomConstraint, trailingConstraint])
-
-        contentViewController.didMove(toParent: self)
-
         self.view = scrollView
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        attachContentViewController()
         scrollView.delegate = self
     }
 
@@ -244,6 +239,28 @@ final class UIScrollViewController: UIViewController, UIScrollViewDelegate, UIGe
     }
 
     // MARK: - Private
+
+    private func attachContentViewController() {
+        guard let contentViewController = contentViewController, contentViewController.parent == nil else {
+            return
+        }
+
+        addChild(contentViewController)
+        contentViewController.view.sizeToFit()
+
+        scrollView.addSubview(contentViewController.view)
+
+        contentViewController.view.translatesAutoresizingMaskIntoConstraints = false
+
+        topConstraint = contentViewController.view.topAnchor.constraint(equalTo: scrollView.topAnchor)
+        leadingConstraint = contentViewController.view.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor)
+        bottomConstraint = contentViewController.view.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor)
+        trailingConstraint = contentViewController.view.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor)
+
+        NSLayoutConstraint.activate([ topConstraint, leadingConstraint, bottomConstraint, trailingConstraint])
+
+        contentViewController.didMove(toParent: self)
+    }
 
     private var topConstraint: NSLayoutConstraint!
     private var leadingConstraint: NSLayoutConstraint!

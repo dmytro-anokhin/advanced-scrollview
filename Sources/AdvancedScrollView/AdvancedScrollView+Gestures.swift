@@ -49,12 +49,20 @@ public enum ContinuousGesturePhase {
 public extension AdvancedScrollView {
 
     func onTapContentGesture(count: Int = 1, perform action: @escaping TapContentAction) -> AdvancedScrollView {
-        self.gesturesDelegate.tapContentGestureInfo = TapContentGestureInfo(count: count, action: action)
-        return self
+        let tapContentGestureInfo = TapContentGestureInfo(count: count, action: action)
+        return AdvancedScrollView(magnification: magnification,
+                                  isScrollIndicatorVisible: isScrollIndicatorVisible,
+                                  tapContentGestureInfo: tapContentGestureInfo,
+                                  dragContentGestureInfo: dragContentGestureInfo,
+                                  content: content)
     }
 
     func onDragContentGesture(perform action: @escaping DragContentAction) -> AdvancedScrollView {
-        self.gesturesDelegate.dragContentGestureInfo = DragContentGestureInfo(action: action)
-        return self
+        let dragContentGestureInfo = DragContentGestureInfo(action: action)
+        return AdvancedScrollView(magnification: magnification,
+                                  isScrollIndicatorVisible: isScrollIndicatorVisible,
+                                  tapContentGestureInfo: tapContentGestureInfo,
+                                  dragContentGestureInfo: dragContentGestureInfo,
+                                  content: content)
     }
 }
