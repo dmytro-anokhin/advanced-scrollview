@@ -2,7 +2,7 @@
 
 Advanced ScrollView creates a bridge between `UIScrollView` and `NSScrollView` and SwiftUI views.
 
-What makes this scroll view "advanced"? You have full access to `UIScrollView` and `NSScrollView`  APIs. It is harder to use, but you can build all kinds of advanced interactions, like pinch to zoom at precise point, scroll with a given offset, infinite canvas, etc. 
+What makes this scroll view "advanced"? You have full access to `UIScrollView` and `NSScrollView`  APIs. It is harder to use, but you can build all kinds of interactions, like pinch to zoom at precise point, scroll with a given offset, infinite canvas, etc. 
 
 ```swift
 import SwiftUI
@@ -20,6 +20,8 @@ struct ScrollableImage: View {
     }
 }
 ```
+
+See the showcase app for some ideas: [ShapeEdit](https://github.com/dmytro-anokhin/ShapeEdit).
 
 ## Magnification
 
